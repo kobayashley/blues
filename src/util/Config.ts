@@ -4,10 +4,12 @@ import Log from "./Log";
 
 export enum ConfigKey {
     botToken = "botToken",
+    rythmId = "rythmId",
 }
 
 const config: {[key: string]: number | string | boolean} = {
     [ConfigKey.botToken]:        process.env.BOT_TOKEN,
+    [ConfigKey.rythmId]:         process.env.RYTHM_ID
 };
 
 export const getConfig = (key: ConfigKey): number | string | boolean => {

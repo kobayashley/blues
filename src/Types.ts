@@ -1,15 +1,19 @@
-enum Source {
-    YOUTUBE,
-    SOUNDCLOUD,
-    TWITCH,
-    VIMEO,
-    BANDCAMP,
-    SPOTIFY, // for completeness. shouldn't appear in any songs
+export enum Source {
+    YOUTUBE = "youtube",
+    SOUNDCLOUD = "soundcloud",
+    TWITCH = "twitch",
+    VIMEO = "vimeo",
+    BANDCAMP = "bandcamp",
+    SPOTIFY = "spotify",
+    UNKNOWN = "unknown",
 }
 
-interface Song {
-    link: string; // primary key
+export interface Song {
+    link: string;
     source: Source; // this is redundant. may wish to remove
     name: string;
-    skipped: string;
+    requester: string;
+    length: number; // approximate length in ms
+    skipped: boolean;
+    time?: number; // time it was played
 }

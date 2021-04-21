@@ -13,7 +13,7 @@ export const messageListener: Listener<"message"> = async (message: Message) => 
         } catch (err) {
             Log.error("Problem saving event:", err);
         }
-    } else if (isCommandFormatted(message)) {
+    } else if (await isCommandFormatted(message)) {
         const command = parseCommand(message);
         const args = parseArguments(message);
         Log.info(`Issuing command "${command}" with arguments:`, args);

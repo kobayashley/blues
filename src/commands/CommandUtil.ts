@@ -1,6 +1,7 @@
 import {Arguments, Command} from "./Command";
 import * as fs from "fs";
 import {Message} from "discord.js";
+import {getPrefix} from "../services/PrefixController";
 
 const commands: Map<string, Command> = new Map();
 
@@ -19,10 +20,11 @@ const getCommand = (command: string): Command => {
     return commands.get(command);
 };
 
-const isCommandFormatted = (message: Message): boolean => {
-    // TODO implement stub
+const isCommandFormatted = async (message: Message): Promise<boolean> => {
     // is from a person and is prefixed
-    return message.author.bot === false && message.content.startsWith(",");
+    const prefix = await getPrefix();
+    const tokens = message.content.split(" ").filter((s) => !!s);
+    return message.author.bot === false && tokens[0]?.startsWith(prefix);
 };
 
 const parseCommand = (message: Message): string => {

@@ -10,8 +10,8 @@ interface DBSong extends Song {
     _id: string;
 }
 
-const promisifyNeDB = <T>(fn: (...args: any[]) => void): (...args: any[]) => Promise<T> => (...args: any[]) =>
-    new Promise((resolve, reject) => {
+const promisifyNeDB = <T>(fn: (...args: [...any, (e, r: T) => void]) => void): (...args: any[]) => Promise<T> =>
+    (...args: any[]) => new Promise((resolve, reject) => {
         const callback = (err, result) => {
             if (err) {
                 return reject(err);

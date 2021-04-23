@@ -1,20 +1,18 @@
 import {Arguments, Command} from "./Command";
-import * as fs from "fs";
 import {Message} from "discord.js";
 import {getPrefix} from "../services/PrefixController";
+import {batchImport} from "../util/Util";
 
 const commands: Map<string, Command> = new Map();
 
-const commandFileList = fs.readdirSync(`${__dirname}/impl`)
-    .filter((name) => name.match(/\.[tj]s$/));
-
-for (const file of commandFileList) {
-    import(`${__dirname}/impl/${file}`).then((importedFile) => {
+const registerCommands = async (): Promise<void> => {
+    const importedFiles = await batchImport(`${__dirname}/impl`);
+    importedFiles.forEach((importedFile) => {
         const command: Command = importedFile.default;
         // If both a TS _and_ a JS file are present, one will just overwrite the other
         commands.set(command.name, command);
     });
-}
+};
 
 const getCommand = (command: string): Command => {
     return commands.get(command);
@@ -38,6 +36,7 @@ const parseArguments = (message: Message): Arguments => {
 };
 
 export {
+    registerCommands,
     getCommand,
     isCommandFormatted,
     parseArguments,

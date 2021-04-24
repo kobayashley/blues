@@ -1,4 +1,4 @@
-import {Arguments, Command} from "./Command";
+import {Command} from "./Command";
 import {Message} from "discord.js";
 import PrefixController from "../controllers/PrefixController";
 import {batchImport} from "../util/Util";
@@ -21,24 +21,22 @@ const getCommand = (command: string): Command => {
 const isCommandFormatted = async (message: Message): Promise<boolean> => {
     // is from a person and is prefixed
     const prefix = await PrefixController.getPrefix();
-    const tokens = message.content.split(" ").filter((s) => !!s);
-    return message.author.bot === false && tokens[0]?.startsWith(prefix);
+    return message.author.bot === false && message.content.trim().startsWith(prefix);
 };
 
-const parseCommand = (message: Message): string => {
-    // TODO implement stub
-    return "help";
-};
-
-const parseArguments = (message: Message): Arguments => {
-    // TODO implement stub
-    return {};
+const parseCommandAndArgs = async (message: Message): Promise<{command: string, args: string[]}> => {
+    const prefix = await PrefixController.getPrefix();
+    const contentWithoutPrefix = message.content.replace(prefix, "");
+    const trimmedContent = contentWithoutPrefix.trim();
+    const tokens = trimmedContent.split(" ").filter((s) => !!s);
+    const command = tokens[0] ?? "";
+    const args = tokens.slice(1);
+    return {command, args};
 };
 
 export {
     registerCommands,
     getCommand,
     isCommandFormatted,
-    parseArguments,
-    parseCommand
+    parseCommandAndArgs
 };

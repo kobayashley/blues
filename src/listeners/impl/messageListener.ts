@@ -1,7 +1,7 @@
 import {Listener} from "../Listener";
 import Log from "../../util/Log";
 import {Message} from "discord.js";
-import {getCommand, isCommandFormatted, parseArguments, parseCommand} from "../../commands/CommandUtil";
+import {getCommand, isCommandFormatted, parseCommandAndArgs} from "../../commands/CommandUtil";
 import SongController from "../../controllers/SongController";
 
 const messageListener: Listener<"message"> = {
@@ -16,8 +16,7 @@ const messageListener: Listener<"message"> = {
                 Log.error("Problem saving event:", err);
             }
         } else if (await isCommandFormatted(message)) {
-            const command = parseCommand(message);
-            const args = parseArguments(message);
+            const {command, args} = await parseCommandAndArgs(message);
             Log.info(`Issuing command "${command}" with arguments:`, args);
             getCommand(command)?.procedure(message, args);
         }

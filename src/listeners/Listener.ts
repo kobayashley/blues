@@ -1,3 +1,6 @@
 import {ClientEvents} from "discord.js";
 
-export type Listener<T extends keyof ClientEvents> = (...args: ClientEvents[T]) => void;
+export interface Listener<T extends keyof ClientEvents> {
+    event: T;
+    procedure: (...args: ClientEvents[T]) => void;
+}

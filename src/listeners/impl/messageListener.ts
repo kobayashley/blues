@@ -2,14 +2,14 @@ import {Listener} from "../Listener";
 import Log from "../../util/Log";
 import {Message} from "discord.js";
 import {getCommand, isCommandFormatted, parseArguments, parseCommand} from "../../commands/CommandUtil";
-import {isAnnouncementFormatted, saveEvent} from "../../services/SongStorage";
+import SongController from "../../controllers/SongController";
 
 export const messageListener: Listener<"message"> = async (message: Message) => {
     Log.debug(`Message from ${message.author.username}: ${message.content}`);
-    if (isAnnouncementFormatted(message)) {
+    if (SongController.isAnnouncementFormatted(message)) {
         Log.debug("Announcement from Rythm detected");
         try {
-            await saveEvent(message);
+            await SongController.saveEvent(message);
         } catch (err) {
             Log.error("Problem saving event:", err);
         }

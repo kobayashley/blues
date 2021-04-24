@@ -23,4 +23,4 @@ const getPrefix = async (): Promise<string> => {
     return maybePrefix ?? DEFAULT_PREFIX;
 };
 
-export {updatePrefix, getPrefix};
+export default {updatePrefix, getPrefix};

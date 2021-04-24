@@ -91,4 +91,4 @@ const isNowPlayingAnnouncement = (message: Message): boolean =>
 const isSongSkippedAnnouncement = (message: Message): boolean =>
     message.content === SKIPPED_MESSAGE;
 
-export {isAnnouncementFormatted, saveEvent};
+export default {isAnnouncementFormatted, saveEvent};

@@ -1,12 +1,14 @@
-import {Client} from "discord.js";
-import {readyListener} from "./impl/readyListener";
-import {messageListener} from "./impl/messageListener";
+import {Client, ClientEvents} from "discord.js";
+import {Listener} from "./Listener";
+import {batchImport} from "../util/Util";
 
-// TODO set this up more like the commands so this file doesn't get forgotten
-
-const registerListeners = (client: Client): Client => {
-    client.on("ready", readyListener);
-    client.on("message", messageListener);
+const registerListeners = async (client: Client): Promise<Client> => {
+    const importedFiles = await batchImport(`${__dirname}/impl`);
+    importedFiles.forEach((importedFile) => {
+        const listener: Listener<keyof ClientEvents> = importedFile.default;
+        // If both a TS _and_ a JS file are present, one will just overwrite the other
+        client.on(listener.event, listener.procedure);
+    });
     return client;
 };
 

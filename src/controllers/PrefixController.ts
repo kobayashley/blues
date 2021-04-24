@@ -27,4 +27,4 @@ const getPrefix = async (): Promise<string> => {
     return prefixCache;
 };
 
-export {updatePrefix, getPrefix};
+export default {updatePrefix, getPrefix};

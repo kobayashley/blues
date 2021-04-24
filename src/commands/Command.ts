@@ -8,4 +8,4 @@ export interface Command {
 }
 
 export type Argument = string | boolean | number
-export type Arguments = {[key: string]: Argument | Argument[]};
+export type Arguments = {[parameter: string]: Argument | Argument[]};

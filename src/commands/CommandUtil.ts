@@ -8,7 +8,7 @@ const commands: Map<string, Command> = new Map();
 const registerCommands = async (): Promise<void> => {
     const importedFiles = await batchImport(`${__dirname}/impl`);
     importedFiles.forEach((importedFile) => {
-        const command: Command = importedFile.default;
+        const command: Command = importedFile;
         // If both a TS _and_ a JS file are present, one will just overwrite the other
         commands.set(command.name, command);
     });

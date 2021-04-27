@@ -23,4 +23,4 @@ const messageListener: Listener<"message"> = {
     },
 };
 
-export default messageListener;
+module.exports = messageListener;

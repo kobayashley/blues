@@ -8,4 +8,4 @@ const help: Command = {
     procedure: async (message: Message) => message.channel.send("Need help?"), // TODO implement stub
 };
 
-export default help;
+module.exports = help;

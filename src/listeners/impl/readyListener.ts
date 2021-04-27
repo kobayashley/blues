@@ -8,4 +8,4 @@ const readyListener: Listener<"ready"> = {
     },
 };
 
-export default readyListener;
+module.exports = readyListener;

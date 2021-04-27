@@ -22,7 +22,7 @@ const getCollection = (collection: Collection): Datastore => {
     return collections.get(collection);
 };
 
-const promisifyNeDB = <T>(fn: (...args: [...any, (e, r: T) => void]) => void): (...args: any[]) => Promise<T> =>
+const promisifyNeDB = <T>(fn: (...args: [...any[], (e, r: T) => void]) => void): (...args: any[]) => Promise<T> =>
     (...args: any[]) => new Promise((resolve, reject) => {
         const callback = (err, result) => {
             if (err) {
@@ -42,7 +42,7 @@ const addSong = (song: Song): Promise<void> => {
 };
 
 const getLatestSong = async (): Promise<Song> => {
-    Log.debug(`Getting latest song to the db`);
+    Log.debug("Getting latest song from the db");
     const cursor = getCollection(Collection.SONGS).find({}).sort({time: -1}).limit(1);
     const documents = await promisifyNeDB<DBSong[]>(cursor.exec.bind(cursor))();
 

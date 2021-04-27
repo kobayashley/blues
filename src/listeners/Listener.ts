@@ -4,5 +4,5 @@ export type Procedure<T extends keyof ClientEvents> = (client: Client) => (...ar
 
 export interface Listener<T extends keyof ClientEvents> {
     event: T;
-    procedure: (client: Client) => (...args: ClientEvents[T]) => void;
+    procedure: Procedure<T>;
 }

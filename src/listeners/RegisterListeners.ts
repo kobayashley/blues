@@ -1,5 +1,5 @@
 import {Client, ClientEvents} from "discord.js";
-import {Listener} from "./Listener";
+import {Listener, Procedure} from "./Listener";
 import {batchImport} from "../util/Util";
 
 const registerListeners = async (client: Client): Promise<Client> => {
@@ -7,12 +7,12 @@ const registerListeners = async (client: Client): Promise<Client> => {
     // Use a map to enforce no duplicates
     const eventListeners = new Map(importedFiles.map(toEntry));
     eventListeners.forEach((procedure, event) => {
-        client.on(event, procedure);
+        client.on(event, procedure(client));
     });
     return client;
 };
 
-const toEntry = <T extends keyof ClientEvents>(importedFile): [T, (...args: ClientEvents[T]) => void] => {
+const toEntry = <T extends keyof ClientEvents>(importedFile): [T, Procedure<T>] => {
     const listener: Listener<T> = importedFile;
     // If both a TS _and_ a JS file are present, one will just overwrite the other
     return [listener.event, listener.procedure];

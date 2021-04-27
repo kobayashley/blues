@@ -3,7 +3,7 @@ import Log from "../../util/Log";
 
 const readyListener: Listener<"ready"> = {
     event: "ready",
-    procedure:() => {
+    procedure: () => () => {
         Log.info("Blues started");
     },
 };

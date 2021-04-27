@@ -18,6 +18,10 @@ const getCommand = (command: string): Command => {
     return commands.get(command);
 };
 
+const getAllCommands = (): Command[] => {
+    return Array.from(commands.values());
+};
+
 const isCommandFormatted = async (message: Message): Promise<boolean> => {
     // is from a person and is prefixed
     const prefix = await PrefixController.getPrefix();
@@ -37,6 +41,7 @@ const parseCommandAndArgs = async (message: Message): Promise<{command: string, 
 export {
     registerCommands,
     getCommand,
+    getAllCommands,
     isCommandFormatted,
     parseCommandAndArgs
 };

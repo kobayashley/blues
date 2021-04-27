@@ -12,7 +12,7 @@ const prefix: Command = {
         if (arg) {
             try {
                 await PrefixController.updatePrefix(arg);
-                reply = `Prefix has been updated to "${arg}"`;
+                reply = `Prefix has been updated to \`${arg}\``;
             } catch (err) {
                 reply = err.message;
             }

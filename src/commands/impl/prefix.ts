@@ -1,6 +1,6 @@
 import {Command} from "../Command";
 import {Message} from "discord.js";
-import PrefixController from "../../controllers/PrefixController";
+import SettingsController from "../../controllers/SettingsController";
 
 const prefix: Command = {
     name: "prefix",
@@ -11,7 +11,7 @@ const prefix: Command = {
         let reply;
         if (arg) {
             try {
-                await PrefixController.updatePrefix(arg);
+                await SettingsController.setPrefix(arg);
                 reply = `Prefix has been updated to \`${arg}\``;
             } catch (err) {
                 reply = err.message;

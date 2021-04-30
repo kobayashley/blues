@@ -29,3 +29,19 @@ export interface SearchResult {
     length: number;
 }
 
+export enum Setting {
+    PREFIX = "prefix",
+    MUTE = "mute",
+    WARNING_CHANNEL = "warningChannel",
+}
+
+export interface UserConfig<T> {
+    setting: Setting;
+    value: T;
+}
+
+export enum MuteOption {
+    ON = "on",
+    OFF = "off",
+    WARN = "warn",
+}

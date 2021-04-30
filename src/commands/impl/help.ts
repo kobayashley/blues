@@ -1,7 +1,7 @@
 import {Command} from "../Command";
 import {Message, MessageEmbed} from "discord.js";
 import {getAllCommands, getCommand} from "../CommandUtil";
-import PrefixController from "../../controllers/PrefixController";
+import PrefixController from "../../controllers/SettingsController";
 
 const help: Command = {
     name: "help",

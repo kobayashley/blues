@@ -1,9 +1,9 @@
-import {Song} from "../../Types";
+import {Setting, Song} from "../../Types";
 
 export interface DatabaseAdapter {
-    // prefix
-    getPrefix(): Promise<string>;
-    setPrefix(prefix: string): Promise<void>;
+    // settings
+    getSetting<T>(setting: Setting): Promise<T>;
+    setSetting<T>(setting: Setting, value: T): Promise<void>;
 
     // songs
     addSong(song: Song): Promise<void>;

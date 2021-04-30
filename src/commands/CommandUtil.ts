@@ -1,6 +1,6 @@
 import {Command} from "./Command";
 import {Message} from "discord.js";
-import PrefixController from "../controllers/PrefixController";
+import PrefixController from "../controllers/SettingsController";
 import {batchImport} from "../util/Util";
 
 const commands: Map<string, Command> = new Map();

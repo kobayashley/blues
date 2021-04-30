@@ -1,11 +1,15 @@
 import Datastore from "nedb";
 import {DatabaseAdapter} from "./DatabaseAdapter";
-import {Song} from "../../Types";
+import {UserConfig, Setting, Song} from "../../Types";
 import Log from "../../util/Log";
 
 enum Collection {
     SONGS = "songs",
-    PREFIX = "prefix",
+    SETTINGS = "settings",
+}
+
+interface DBConfig<T> extends UserConfig<T> {
+    _id: string;
 }
 
 interface DBSong extends Song {
@@ -69,22 +73,24 @@ const getSongsBetween = async (from: number, until: number): Promise<Song[]> => 
     return documents;
 };
 
-const getPrefix = async (): Promise<string> => {
-    const prefixCollection = getCollection(Collection.PREFIX);
-    const document = await promisifyNeDB<{prefix: string}>(prefixCollection.findOne.bind(prefixCollection))({});
-    Log.debug("Retrieved prefix:", document);
-    return document?.prefix ?? null;
+const getSetting = async <T>(setting: Setting): Promise<T> => {
+    const prefixCollection = getCollection(Collection.SETTINGS);
+    const query = {setting};
+    const document = await promisifyNeDB<DBConfig<T>>(prefixCollection.findOne.bind(prefixCollection))(query);
+    Log.debug(`Retrieved ${setting}:`, document);
+    return document?.value ?? null;
 };
 
-const setPrefix = async (prefix: string): Promise<void> => {
-    Log.debug("Setting prefix:", prefix);
-    const prefixCollection = getCollection(Collection.PREFIX);
-    return promisifyNeDB<void>(prefixCollection.update.bind(prefixCollection))({}, {prefix}, {upsert: true});
+const setSetting = async <T>(setting: Setting, value: T): Promise<void> => {
+    Log.debug(`Setting ${setting}:`, value);
+    const config = {setting, value};
+    const prefixCollection = getCollection(Collection.SETTINGS);
+    return promisifyNeDB<void>(prefixCollection.update.bind(prefixCollection))({}, config, {upsert: true});
 };
 
 export const NeDBAdapter: DatabaseAdapter = {
-    getPrefix,
-    setPrefix,
+    getSetting,
+    setSetting,
     addSong,
     getSongsBetween,
     getLatestSong,

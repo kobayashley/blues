@@ -6,29 +6,32 @@ import {Song, Source} from "../Types";
 
 const NOW_PLAYING_TITLE = "Now Playing 🎵";
 const SKIPPED_MESSAGE = "⏩ ***Skipped*** 👍";
+const ANNOUNCEMENTS_OFF = "<:x2:814990341052432435> **I will no longer announce new songs**";
+const ANNOUNCEMENTS_ON = "✅ **I will now announce new songs**";
 const BOT_ID = getConfig(ConfigKey.rythmId);
 
-const isAnnouncementFormatted = (message: Message): boolean => {
-    if (message.author.bot === false) {
-        return false;
-    }
-    if (message.author.id !== BOT_ID) {
-        return false;
-    }
-    return isNowPlayingAnnouncement(message) || isSongSkippedAnnouncement(message);
+const isRythmEvent = (message: Message): boolean => {
+    return message.author.bot && message.author.id === BOT_ID;
 };
 
-const saveEvent = async (message: Message): Promise<void> => {
+const errorHandler = (error: unknown) =>
+    Log.error("Error handling event:", error);
+
+const handleEvent = async (message: Message): Promise<void> => {
     if (isNowPlayingAnnouncement(message)) {
         const song: Song = parseSong(message);
-        await NeDBAdapter.addSong(song);
+        await NeDBAdapter.addSong(song).catch(errorHandler);
     } else if (isSongSkippedAnnouncement(message)) {
         const song = await NeDBAdapter.getLatestSong();
         if (!songStartedLongAgo(song)) {
-            await NeDBAdapter.skipSong(song);
+            await NeDBAdapter.skipSong(song).catch(errorHandler);
         }
-    } else {
-        Log.warn("SongStorage::saveEvent called on bad message. Impossible state reached");
+    } else if (isAnnouncementsOnAnnouncement(message)) {
+        await message.react("💆‍♀️").catch(errorHandler);
+    } else if (isAnnouncementsOffAnnouncement(message)) {
+        await message.channel
+            .send("⚠ **Turning off announcements will prevent me from saving songs!**")
+            .catch(errorHandler);
     }
 };
 
@@ -85,10 +88,12 @@ const parseSource = (link: string): Source => {
     return Source.YOUTUBE;
 };
 
+const createContentAnnouncementChecker = (content: string): (message: Message) => boolean =>
+    (message: Message): boolean => message.content === content;
+const isSongSkippedAnnouncement = createContentAnnouncementChecker(SKIPPED_MESSAGE);
+const isAnnouncementsOnAnnouncement = createContentAnnouncementChecker(ANNOUNCEMENTS_ON);
+const isAnnouncementsOffAnnouncement = createContentAnnouncementChecker(ANNOUNCEMENTS_OFF);
 const isNowPlayingAnnouncement = (message: Message): boolean =>
     !!message.embeds.find((embed: MessageEmbed) => embed.title === NOW_PLAYING_TITLE);
 
-const isSongSkippedAnnouncement = (message: Message): boolean =>
-    message.content === SKIPPED_MESSAGE;
-
-export default {isAnnouncementFormatted, saveEvent};
+export default {isRythmEvent, handleEvent};

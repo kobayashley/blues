@@ -17,3 +17,15 @@ export interface Song {
     skipped: boolean;
     time?: number; // time it was played
 }
+
+export interface Playlist {
+    name: string;
+    link: string;
+}
+
+export interface SearchResult {
+    name: string; // sometimes artistName - songName
+    link: string;
+    length: number;
+}
+

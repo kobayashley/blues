@@ -1,5 +1,5 @@
 import {ConfigKey, getConfig} from "../util/Config";
-import {NeDBAdapter} from "../adapters/NeDBAdapter";
+import {NeDBAdapter} from "../adapters/database/NeDBAdapter";
 
 const DEFAULT_PREFIX = String(getConfig(ConfigKey.defaultPrefix));
 const ILLEGAL_PREFIXES = ["/", "@"];

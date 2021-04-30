@@ -10,7 +10,7 @@ const createPlaylist: Command = {
     usage: "createPlaylist",
     procedure: async (message: Message, args: string[]) => {
         const now = Date.now();
-        const dayStart = new Date().setHours(0, 0, 0);
+        const dayStart = new Date(now).setHours(0, 0, 0);
         const songs = await NeDBAdapter.getSongsBetween(dayStart, now);
         const {name, link} = await PlaylistController.createPlaylist(songs);
         const embed = createPlaylistEmbed(name, link);

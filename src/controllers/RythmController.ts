@@ -1,7 +1,7 @@
 import {Message, MessageEmbed} from "discord.js";
 import {ConfigKey, getConfig} from "../util/Config";
 import Log from "../util/Log";
-import {NeDBAdapter} from "../adapters/NeDBAdapter";
+import {NeDBAdapter} from "../adapters/database/NeDBAdapter";
 import {Song, Source} from "../Types";
 
 const NOW_PLAYING_TITLE = "Now Playing 🎵";

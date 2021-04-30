@@ -1,4 +1,4 @@
-import {Song} from "../Types";
+import {Song} from "../../Types";
 
 export interface DatabaseAdapter {
     // prefix

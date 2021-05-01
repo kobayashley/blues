@@ -1,9 +1,9 @@
-import {Command} from "../Command";
+import {Command, CommandBinder} from "../Command";
 import {Message, MessageEmbed} from "discord.js";
 import {getAllCommands, getCommand} from "../CommandUtil";
-import PrefixController from "../../controllers/PrefixController";
+import PrefixController from "../../controllers/SettingsController";
 
-const help: Command = {
+const help: CommandBinder = () => ({
     name: "help",
     description: "Displays list of commands",
     usage: "help <commandName (opt)>",
@@ -18,7 +18,7 @@ const help: Command = {
         }
         return message.channel.send(reply);
     },
-};
+});
 
 const displayCommandUsage = (message: Message, prefix: string, commandName: string) => {
     const command = getCommand(commandName);
@@ -44,4 +44,4 @@ const toHelpLine = (prefix: string) => (command: Command): {name: string, value:
     return {name: `\`${prefix}${command.name}\``, value: command.description, inline: true};
 };
 
-module.exports = help;
+export default help;

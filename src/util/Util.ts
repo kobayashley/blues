@@ -1,4 +1,5 @@
 import fs from "fs";
+import {MuteOption} from "../Types";
 
 const batchImport = (directory: string): Promise<any[]> => {
     const files = fs.readdirSync(directory)
@@ -8,4 +9,7 @@ const batchImport = (directory: string): Promise<any[]> => {
     return Promise.all(futureImportedFiles);
 };
 
-export {batchImport};
+const isMuteOption = (maybeMuteOption: any): maybeMuteOption is MuteOption =>
+    Object.values(MuteOption).includes(maybeMuteOption);
+
+export {batchImport, isMuteOption};

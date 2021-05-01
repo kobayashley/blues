@@ -1,17 +1,19 @@
-import {Command} from "./Command";
-import {Message} from "discord.js";
-import PrefixController from "../controllers/PrefixController";
+import {Command, CommandBinder} from "./Command";
+import {Client, Message} from "discord.js";
+import PrefixController from "../controllers/SettingsController";
 import {batchImport} from "../util/Util";
 
 const commands: Map<string, Command> = new Map();
 
-const registerCommands = async (): Promise<void> => {
+const registerCommands = async (client: Client): Promise<Client> => {
     const importedFiles = await batchImport(`${__dirname}/impl`);
     importedFiles.forEach((importedFile) => {
-        const command: Command = importedFile;
+        const binder: CommandBinder = importedFile.default;
         // If both a TS _and_ a JS file are present, one will just overwrite the other
+        const command = binder(client);
         commands.set(command.name, command);
     });
+    return client;
 };
 
 const getCommand = (command: string): Command => {

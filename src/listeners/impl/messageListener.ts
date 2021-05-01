@@ -3,7 +3,7 @@ import Log from "../../util/Log";
 import {Client, Message} from "discord.js";
 import {getCommand, isCommandFormatted, parseCommandAndArgs} from "../../commands/CommandUtil";
 import RythmController from "../../controllers/RythmController";
-import PrefixController from "../../controllers/PrefixController";
+import PrefixController from "../../controllers/SettingsController";
 
 const messageListener: Listener<"message"> = {
     event: "message",

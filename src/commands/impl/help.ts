@@ -7,7 +7,7 @@ const help: CommandBinder = () => ({
     name: "help",
     description: "Displays list of commands",
     usage: "help <commandName (opt)>",
-    procedure: () => async (message: Message, args: string[]) => {
+    procedure: async (message: Message, args: string[]) => {
         const [arg] = args;
         const prefix = await PrefixController.getPrefix();
         let reply;

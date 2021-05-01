@@ -39,7 +39,7 @@ const promisifyNeDB = <T>(fn: (...args: [...any[], (e, r: T) => void]) => void):
     });
 
 const addSong = (song: Song): Promise<void> => {
-    Log.debug(`Saving ${song.name} song to the db`);
+    Log.info(`Saving ${song.name} song to the db`);
     const time = Date.now();
     const songCollection = getCollection(Collection.SONGS);
     return promisifyNeDB<void>(songCollection.insert.bind(songCollection))({...song, time});

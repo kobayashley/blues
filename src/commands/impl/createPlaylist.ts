@@ -1,10 +1,10 @@
-import {Command} from "../Command";
+import {CommandBinder} from "../Command";
 import {Message, MessageEmbed} from "discord.js";
 import {NeDBAdapter} from "../../adapters/database/NeDBAdapter";
 import PlaylistController from "../../controllers/PlaylistController";
 
 // TODO future: <source (opt) = 'youtube' | 'spotify'> <startTime (opt)> <endTime (opt)> <name (opt)>
-const createPlaylist: Command = {
+const createPlaylist: CommandBinder = () => ({
     name: "createPlaylist",
     description: "Creates a YouTube playlist from music played by Rythm",
     usage: "createPlaylist",
@@ -16,7 +16,7 @@ const createPlaylist: Command = {
         const embed = createPlaylistEmbed(name, link);
         return message.channel.send(embed);
     },
-};
+});
 
 const createPlaylistEmbed = (name: string, link: string): MessageEmbed =>
     new MessageEmbed()
@@ -24,4 +24,4 @@ const createPlaylistEmbed = (name: string, link: string): MessageEmbed =>
         .setURL(link)
         .setDescription("Playlist created successfully");
 
-module.exports = createPlaylist;
+export default createPlaylist;

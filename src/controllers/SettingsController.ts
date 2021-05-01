@@ -1,9 +1,10 @@
 import {ConfigKey, getConfig} from "../util/Config";
 import {NeDBAdapter} from "../adapters/database/NeDBAdapter";
 import {MuteOption, Setting} from "../Types";
+import {isMuteOption} from "../util/Util";
 
 const DEFAULT_PREFIX = String(getConfig(ConfigKey.defaultPrefix));
-const ILLEGAL_PREFIXES = ["/", "@"];
+const ILLEGAL_PREFIXES = ["/", "@", "#"];
 
 const DEFAULT_MUTE = MuteOption.OFF;
 
@@ -26,8 +27,7 @@ const setPrefix = (newPrefix: string): Promise<void> => {
 const getPrefix = (): Promise<string> => getSetting(Setting.PREFIX, DEFAULT_PREFIX);
 
 const setMute = (newOption: string): Promise<void> => {
-    assert(Object.values(MuteOption).includes(newOption as MuteOption),
-        "Mute must be set to 'on', 'off', or 'warn'");
+    assert(isMuteOption(newOption), "Mute must be set to 'on', 'off', or 'warn'");
     return setSetting(Setting.MUTE, newOption);
 };
 

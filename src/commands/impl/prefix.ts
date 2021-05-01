@@ -1,8 +1,8 @@
-import {Command} from "../Command";
+import {CommandBinder} from "../Command";
 import {Message} from "discord.js";
 import SettingsController from "../../controllers/SettingsController";
 
-const prefix: Command = {
+const prefix: CommandBinder = () => ({
     name: "prefix",
     description: "Updates the prefix for commands",
     usage: "prefix <newPrefix>",
@@ -21,6 +21,6 @@ const prefix: Command = {
         }
         return message.channel.send(reply);
     },
-};
+});
 
-module.exports = prefix;
+export default prefix;

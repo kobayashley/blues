@@ -5,9 +5,9 @@ import {registerCommands} from "./commands/CommandUtil";
 
 const main = async () => {
     const client = new Client();
-    await registerCommands();
-    const registeredClient = await registerListeners(client);
-    return registeredClient.login(String(getConfig(ConfigKey.botToken)));
+    const withCommands = await registerCommands(client);
+    const withListenersClient = await registerListeners(withCommands);
+    return withListenersClient.login(String(getConfig(ConfigKey.botToken)));
 };
 
 main();

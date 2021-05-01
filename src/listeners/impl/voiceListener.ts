@@ -41,7 +41,7 @@ const performWarn = async (client: Client, voiceState: VoiceState, message = ", 
     const warningChannelID = await SettingsController.getWarningChannel();
     const warningChannel = await client.channels.fetch(warningChannelID);
     if (warningChannel.isText()) {
-        await warningChannel.send(`${voiceState.member.user}${message}`);
+        await warningChannel.send(`${voiceState.member.user.toString()}${message}`);
     }
 };
 

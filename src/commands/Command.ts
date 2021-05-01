@@ -1,4 +1,6 @@
-import {Message} from "discord.js";
+import {Client, Message} from "discord.js";
+
+export type CommandBinder = (client: Client) => Command;
 
 export interface Command {
     name: string;

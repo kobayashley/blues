@@ -51,7 +51,7 @@ const songStartedLongAgo = (song: Song): boolean => {
     if ((now - start) >= 30000) {
         Log.debug( `${song.name} started over 30 seconds`);
         return true;
-    } else if (now > start + (length/2)) {
+    } else if (now > start + (length / 2)) {
         Log.debug(`${song.name} has played over halfway through`);
         return true;
     }
@@ -91,18 +91,18 @@ const parseLength = (markdown: string): number => {
     const seconds = timeSegments[timeSegments.length - 1] ?? "0";
     const minutes = timeSegments[timeSegments.length - 2] ?? "0";
     const hours = timeSegments[timeSegments.length - 3] ?? "0";
-    Log.debug(`hours: "${hours}", minutes: "${minutes}", seconds: "${seconds}"`);
+    Log.debug(`Hours: "${hours}", Minutes: "${minutes}", Seconds: "${seconds}"`);
     return toMilliseconds(Number(hours), Number(minutes), Number(seconds));
 };
 
 const toMilliseconds = (hours: number, minutes: number, seconds: number): number => {
-    const hoursMS = hours*60*60*1000;
-    const minutesMS = minutes*60*1000;
-    const secondsMS = seconds*1000;
+    const hoursMS = hours * 60 * 60 * 1000;
+    const minutesMS = minutes * 60 * 1000;
+    const secondsMS = seconds * 1000;
     return hoursMS + minutesMS + secondsMS;
 };
 
-// "`Requested by:` user#1234" | "`Requested by:` nickname (us (er#1234)"
+// "`Requested by:` user#1234" | "`Requested by:` nickname (user#1234)"
 const parseRequester = (markdown: string): string => {
     const inputName = markdown.replace("`Requested by:` ", "");
     let name;
@@ -110,9 +110,9 @@ const parseRequester = (markdown: string): string => {
         name = inputName;
     } else {
         const parenIndex = inputName.lastIndexOf("(");
-        name = inputName.slice(parenIndex+1, -1);
+        name = inputName.slice(parenIndex + 1, -1);
     }
-    Log.debug(`pareRequester name: ${name}`);
+    Log.debug(`parenRequester name: ${name}`);
     return name;
 };
 

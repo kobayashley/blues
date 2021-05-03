@@ -7,7 +7,7 @@ import {MuteOption} from "../../Types";
 
 const BOT_ID = String(getConfig(ConfigKey.rythmId));
 
-const voiceListener: Listener<"voiceStateUpdate"> = {
+const voiceStateUpdate: Listener<"voiceStateUpdate"> = {
     event: "voiceStateUpdate",
     procedure: (client: Client) => async (oldVoiceState: VoiceState, newVoiceState: VoiceState) => {
         const mute = await SettingsController.getMute();
@@ -53,4 +53,4 @@ const strategies: {[strategy: string]: MuteStrategy} = {
     [MuteOption.OFF]: performNothing,
 };
 
-module.exports = voiceListener;
+module.exports = voiceStateUpdate;

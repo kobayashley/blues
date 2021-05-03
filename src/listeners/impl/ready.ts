@@ -1,11 +1,11 @@
 import {Listener} from "../Listener";
 import Log from "../../util/Log";
 
-const readyListener: Listener<"ready"> = {
+const ready: Listener<"ready"> = {
     event: "ready",
     procedure: () => () => {
         Log.info("Blues started");
     },
 };
 
-module.exports = readyListener;
+module.exports = ready;

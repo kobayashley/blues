@@ -33,6 +33,7 @@ export enum Setting {
     PREFIX = "prefix",
     MUTE = "mute",
     WARNING_CHANNEL = "warningChannel",
+    PRUNE = "prune"
 }
 
 export interface UserConfig<T> {
@@ -40,8 +41,19 @@ export interface UserConfig<T> {
     value: T;
 }
 
+// TODO this is what should be going into the database
+export interface MuteConfig {
+    option: MuteOption;
+    channel: string;
+}
+
 export enum MuteOption {
     ON = "on",
     OFF = "off",
     WARN = "warn",
+}
+
+export enum PruneOption {
+    ON = "on",
+    OFF = "OFF",
 }

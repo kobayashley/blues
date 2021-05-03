@@ -1,5 +1,5 @@
 import fs from "fs";
-import {MuteOption} from "../Types";
+import {MuteOption, PruneOption} from "../Types";
 
 const batchImport = (directory: string): Promise<any[]> => {
     const files = fs.readdirSync(directory)
@@ -12,4 +12,7 @@ const batchImport = (directory: string): Promise<any[]> => {
 const isMuteOption = (maybeMuteOption: any): maybeMuteOption is MuteOption =>
     Object.values(MuteOption).includes(maybeMuteOption);
 
-export {batchImport, isMuteOption};
+const isPruneOption = (maybePruneOption: any): maybePruneOption is PruneOption =>
+    Object.values(PruneOption).includes(maybePruneOption);
+
+export {batchImport, isMuteOption, isPruneOption};

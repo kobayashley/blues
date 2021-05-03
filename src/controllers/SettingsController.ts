@@ -1,7 +1,7 @@
 import {ConfigKey, getConfig} from "../util/Config";
-import {NeDBAdapter} from "../adapters/database/NeDBAdapter";
 import {MuteConfig, MuteOption, PruneOption, Setting} from "../Types";
 import {isMuteConfig, isPruneOption} from "../util/Util";
+import {getDatabaseAdapter} from "../adapters/database/DatabaseAdapter";
 
 const DEFAULT_PREFIX = String(getConfig(ConfigKey.defaultPrefix));
 const ILLEGAL_PREFIXES = ["/", "@", "#"];
@@ -15,6 +15,8 @@ const DEFAULT_BOT = String(getConfig(ConfigKey.defaultRythmId));
 type Guild = string;
 type Cache = Map<Setting, any>
 const settingCache = new Map<Guild, Cache>();
+
+const database = getDatabaseAdapter();
 
 const get = <T>(guild: Guild, setting: Setting): T => {
     return settingCache.get(guild)?.get(setting);
@@ -34,13 +36,13 @@ const assert = (scrutinee: boolean, reason: string) => {
 };
 
 const getSetting = async <T>(guild: string, setting: Setting, defaultSetting: T): Promise<T> => {
-    const maybeSetting = settingCache.get(setting) ?? await NeDBAdapter.getSetting(guild, setting);
+    const maybeSetting = settingCache.get(setting) ?? await database.getSetting(guild, setting);
     set(guild, setting, maybeSetting ?? defaultSetting);
     return get(guild, setting);
 };
 
 const setSetting = async <T>(guild: string, setting: Setting, newValue: T): Promise<void> => {
-    await NeDBAdapter.setSetting(guild, setting, newValue);
+    await database.setSetting(guild, setting, newValue);
     set(guild, setting, newValue);
 };
 

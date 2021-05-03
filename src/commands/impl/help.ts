@@ -2,6 +2,7 @@ import {Command, CommandBinder} from "../Command";
 import {Message, MessageEmbed} from "discord.js";
 import {getAllCommands, getCommand} from "../CommandUtil";
 import PrefixController from "../../controllers/SettingsController";
+import {getGuild} from "../../util/Util";
 
 const help: CommandBinder = () => ({
     name: "help",
@@ -9,7 +10,7 @@ const help: CommandBinder = () => ({
     usage: "help <commandName (opt)>",
     procedure: async (message: Message, args: string[]) => {
         const [arg] = args;
-        const prefix = await PrefixController.getPrefix();
+        const prefix = await PrefixController.getPrefix(getGuild(message));
         let reply;
         if (arg) {
             reply = displayCommandUsage(message, prefix, arg);

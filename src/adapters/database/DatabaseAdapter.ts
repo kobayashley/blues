@@ -2,12 +2,12 @@ import {Setting, Song} from "../../Types";
 
 export interface DatabaseAdapter {
     // settings
-    getSetting<T>(setting: Setting): Promise<T>;
-    setSetting<T>(setting: Setting, value: T): Promise<void>;
+    getSetting<T>(guild: string, setting: Setting): Promise<T>;
+    setSetting<T>(guild: string, setting: Setting, value: T): Promise<void>;
 
     // songs
-    addSong(song: Song): Promise<void>;
-    getLatestSong(): Promise<Song>;
-    skipSong(song: Song): Promise<void>;
-    getSongsBetween(from: number, until: number): Promise<Song[]>;
+    addSong(guild: string, song: Song): Promise<void>;
+    getLatestSong(guild: string): Promise<Song>;
+    skipSong(guild: string, song: Song): Promise<void>;
+    getSongsBetween(guild: string, from: number, until: number): Promise<Song[]>;
 }

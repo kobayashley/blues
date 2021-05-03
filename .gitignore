@@ -5,7 +5,7 @@
 dist
 
 # NeDB databases
-*.db
+db
 
 # Normal stuff
 node_modules

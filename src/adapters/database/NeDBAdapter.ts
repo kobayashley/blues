@@ -1,26 +1,30 @@
 import Datastore from "nedb";
 import {DatabaseAdapter} from "./DatabaseAdapter";
-import {UserConfig, Setting, Song} from "../../Types";
+import {Setting, Song} from "../../Types";
 import Log from "../../util/Log";
 
-enum Collection {
+enum Entities {
     SONGS = "songs",
-    SETTINGS = "settings",
 }
 
-interface DBConfig<T> extends UserConfig<T> {
-    _id: string;
+type Collection = Entities | Setting
+
+interface DBConfig<T> {
+    _id?: string;
+    value: T;
+    guild: string;
 }
 
 interface DBSong extends Song {
-    _id: string;
+    _id?: string;
+    guild: string;
 }
 
 const collections: Map<Collection, Datastore> = new Map();
 
 const getCollection = (collection: Collection): Datastore => {
     if (!collections.has(collection)) {
-        const dataStore = new Datastore({filename: `./${collection}.db`, autoload: true});
+        const dataStore = new Datastore({filename: `./db/${collection}.db`, autoload: true});
         collections.set(collection, dataStore);
     }
     return collections.get(collection);
@@ -38,16 +42,16 @@ const promisifyNeDB = <T>(fn: (...args: [...any[], (e, r: T) => void]) => void):
         fn(...args, callback);
     });
 
-const addSong = (song: Song): Promise<void> => {
+const addSong = (guild: string, song: Song): Promise<void> => {
     Log.info(`Saving ${song.name} song to the db`);
     const time = Date.now();
-    const songCollection = getCollection(Collection.SONGS);
-    return promisifyNeDB<void>(songCollection.insert.bind(songCollection))({...song, time});
+    const songCollection = getCollection(Entities.SONGS);
+    return promisifyNeDB<void>(songCollection.insert.bind(songCollection))({...song, time, guild});
 };
 
-const getLatestSong = async (): Promise<Song> => {
+const getLatestSong = async (guild: string): Promise<Song> => {
     Log.debug("Getting latest song from the db");
-    const cursor = getCollection(Collection.SONGS).find({}).sort({time: -1}).limit(1);
+    const cursor = getCollection(Entities.SONGS).find({guild}).sort({time: -1}).limit(1);
     const documents = await promisifyNeDB<DBSong[]>(cursor.exec.bind(cursor))();
 
     if (!documents) {
@@ -58,33 +62,36 @@ const getLatestSong = async (): Promise<Song> => {
     return dbSong;
 };
 
-const skipSong = (song: Song): Promise<void> => {
+const skipSong = (guild: string, song: Song): Promise<void> => {
     Log.debug(`Skipping ${song.name} in the db`);
-    const songCollection = getCollection(Collection.SONGS);
-    return promisifyNeDB<void>(songCollection.update.bind(songCollection))(song, {$set: {skipped: true}}, {});
+    const songCollection = getCollection(Entities.SONGS);
+    return promisifyNeDB<void>(songCollection.update.bind(songCollection))({...song, guild}, {$set: {skipped: true}}, {});
 };
 
-const getSongsBetween = async (from: number, until: number): Promise<Song[]> => {
-    const query = {$and:[{time: {$gt: from}}, {time: {$lt: until}}]};
-    const cursor = getCollection(Collection.SONGS).find(query).sort({time: 1});
+const getSongsBetween = async (guild: string, from: number, until: number): Promise<Song[]> => {
+    const query = {guild, $and:[{time: {$gt: from}}, {time: {$lt: until}}]};
+    const cursor = getCollection(Entities.SONGS).find(query).sort({time: 1});
     const documents = await promisifyNeDB<DBSong[]>(cursor.exec.bind(cursor))();
-    documents.forEach((document) => delete document._id);
-    Log.debug(`Retrieved ${documents.length} songs`);
-    return documents;
+    const songs: Song[] = documents.map((song): Song => {
+        const {name, link, length, source, requester, skipped} = song;
+        return {name, link, length, source, requester, skipped};
+    });
+    Log.info(`Retrieved ${documents.length} songs for guild ${guild}`);
+    return songs;
 };
 
-const getSetting = async <T>(setting: Setting): Promise<T> => {
-    const prefixCollection = getCollection(Collection.SETTINGS);
-    const query = {setting};
+const getSetting = async <T>(guild: string, setting: Setting): Promise<T> => {
+    const prefixCollection = getCollection(setting);
+    const query = {guild};
     const document = await promisifyNeDB<DBConfig<T>>(prefixCollection.findOne.bind(prefixCollection))(query);
     Log.debug(`Retrieved ${setting}:`, document);
     return document?.value ?? null;
 };
 
-const setSetting = async <T>(setting: Setting, value: T): Promise<void> => {
+const setSetting = async <T>(guild: string, setting: Setting, value: T): Promise<void> => {
     Log.debug(`Setting ${setting}:`, value);
-    const config = {setting, value};
-    const prefixCollection = getCollection(Collection.SETTINGS);
+    const config = {value, guild};
+    const prefixCollection = getCollection(setting);
     return promisifyNeDB<void>(prefixCollection.update.bind(prefixCollection))({}, config, {upsert: true});
 };
 

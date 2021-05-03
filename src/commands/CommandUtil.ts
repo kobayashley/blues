@@ -1,7 +1,7 @@
 import {Command, CommandBinder} from "./Command";
 import {Client, Message} from "discord.js";
 import PrefixController from "../controllers/SettingsController";
-import {batchImport} from "../util/Util";
+import {batchImport, getGuild} from "../util/Util";
 
 const commands: Map<string, Command> = new Map();
 
@@ -26,12 +26,12 @@ const getAllCommands = (): Command[] => {
 
 const isCommandFormatted = async (message: Message): Promise<boolean> => {
     // is from a person and is prefixed
-    const prefix = await PrefixController.getPrefix();
+    const prefix = await PrefixController.getPrefix(getGuild(message));
     return message.author.bot === false && message.content.trim().startsWith(prefix);
 };
 
 const parseCommandAndArgs = async (message: Message): Promise<{command: string, args: string[]}> => {
-    const prefix = await PrefixController.getPrefix();
+    const prefix = await PrefixController.getPrefix(getGuild(message));
     const contentWithoutPrefix = message.content.replace(prefix, "");
     const trimmedContent = contentWithoutPrefix.trim();
     const tokens = trimmedContent.split(" ").filter((s) => !!s);

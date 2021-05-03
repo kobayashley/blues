@@ -4,14 +4,16 @@ import {ConfigKey, getConfig} from "../../util/Config";
 import Log from "../../util/Log";
 import SettingsController from "../../controllers/SettingsController";
 import {MuteOption} from "../../Types";
+import {getGuild} from "../../util/Util";
 
 const BOT_ID = String(getConfig(ConfigKey.rythmId));
 
 const voiceStateUpdate: Listener<"voiceStateUpdate"> = {
     name: "voiceStateUpdate",
     event: "voiceStateUpdate",
-    procedure: (client: Client) => async (oldVoiceState: VoiceState, newVoiceState: VoiceState) => {
-        const {option} = await SettingsController.getMute();
+    procedure: (client: Client) => async (_: VoiceState, newVoiceState: VoiceState) => {
+
+        const {option} = await SettingsController.getMute(newVoiceState.guild.id);
         if (newVoiceState.channel) {
             if (newVoiceState.id === BOT_ID) {
                 const futureMutes = newVoiceState.channel.members
@@ -39,7 +41,7 @@ const performMute = async (client: Client, voiceState: VoiceState): Promise<void
 };
 
 const performWarn = async (client: Client, voiceState: VoiceState, message = ", you're not muted!"): Promise<void> => {
-    const {channel} = await SettingsController.getMute();
+    const {channel} = await SettingsController.getMute(voiceState.guild.id);
     const warningChannel = await client.channels.fetch(channel);
     if (warningChannel.isText()) {
         await warningChannel.send(`${voiceState.member.user.toString()}${message}`);

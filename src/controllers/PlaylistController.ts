@@ -16,7 +16,7 @@ const createPlaylist = async (songs: Song[]): Promise<Playlist> => {
             }
         }
     }
-    return {name: playlistName, link: playlistLink};
+    return {name: playlistName, link: playlistLink, source: Source.YOUTUBE};
 };
 
 const selectBestSearchResult = (originalSong: Song, songLinks: SearchResult[]): SearchResult => {

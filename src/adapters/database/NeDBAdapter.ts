@@ -1,10 +1,11 @@
 import Datastore from "nedb";
 import {DatabaseAdapter} from "./DatabaseAdapter";
-import {Setting, Song} from "../../Types";
+import {Playlist, Setting, Song} from "../../Types";
 import Log from "../../util/Log";
 
 enum Entity {
     SONGS = "songs",
+    PLAYLISTS = "playlists",
 }
 
 type Collection = Entity | Setting
@@ -16,6 +17,11 @@ interface DBConfig<T> {
 }
 
 interface DBSong extends Song {
+    _id?: string;
+    guild: string;
+}
+
+interface DBPlaylist extends Song {
     _id?: string;
     guild: string;
 }
@@ -43,7 +49,7 @@ const promisifyNeDB = <T>(fn: (...args: [...any[], (e, r: T) => void]) => void):
     });
 
 const addSong = (guild: string, song: Song): Promise<void> => {
-    Log.info(`Saving ${song.name} song to the db`);
+    Log.info(`Saving "${song.name}" song to the db`);
     const time = Date.now();
     const songCollection = getCollection(Entity.SONGS);
     return promisifyNeDB<void>(songCollection.insert.bind(songCollection))({...song, time, guild});
@@ -80,6 +86,25 @@ const getSongsBetween = async (guild: string, from: number, until: number): Prom
     return songs;
 };
 
+const addPlaylist = (guild: string, playlist: Playlist): Promise<void> => {
+    Log.info(`Saving "${playlist.name}" playlist to the db`);
+    const time = Date.now();
+    const playlistCollection = getCollection(Entity.PLAYLISTS);
+    return promisifyNeDB<void>(playlistCollection.insert.bind(playlistCollection))({...playlist, time, guild});
+};
+
+const listPlaylists = async (guild: string): Promise<Playlist[]> => {
+    const query = {guild};
+    const cursor = getCollection(Entity.PLAYLISTS).find(query).sort({time: 1});
+    const documents = await promisifyNeDB<DBPlaylist[]>(cursor.exec.bind(cursor))();
+    const playlists: Playlist[] = documents.map((song): Playlist => {
+        const {name, link, source} = song;
+        return {name, link, source};
+    });
+    Log.info(`Retrieved ${documents.length} playlists for guild ${guild}`);
+    return playlists;
+};
+
 const getSetting = async <T>(guild: string, setting: Setting): Promise<T> => {
     const prefixCollection = getCollection(setting);
     const query = {guild};
@@ -102,4 +127,6 @@ export const NeDBAdapter: DatabaseAdapter = {
     getSongsBetween,
     getLatestSong,
     skipSong,
+    addPlaylist,
+    listPlaylists,
 };

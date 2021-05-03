@@ -4,13 +4,13 @@ import Log from "./Log";
 
 export enum ConfigKey {
     botToken = "botToken",
-    rythmId = "rythmId",
+    defaultRythmId = "defaultRythmId",
     defaultPrefix = "defaultPrefix",
 }
 
 const config: {[key: string]: number | string | boolean} = {
     [ConfigKey.botToken]:        process.env.BOT_TOKEN,
-    [ConfigKey.rythmId]:         process.env.RYTHM_ID,
+    [ConfigKey.defaultRythmId]:  process.env.RYTHM_ID,
     [ConfigKey.defaultPrefix]:   process.env.DEFAULT_PREFIX,
 };
 

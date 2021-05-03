@@ -7,7 +7,7 @@ const rythmEvent: Listener<"message"> = {
     name: "rythmEvent",
     event: "message",
     procedure: () => async (message: Message) => {
-        if (RythmController.isRythmEvent(message)) {
+        if (await RythmController.isRythmEvent(message)) {
             Log.debug("Announcement from Rythm detected");
             return RythmController.handleEvent(message);
         }

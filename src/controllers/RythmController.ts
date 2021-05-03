@@ -1,5 +1,4 @@
 import {Message, MessageEmbed} from "discord.js";
-import {ConfigKey, getConfig} from "../util/Config";
 import Log from "../util/Log";
 import {NeDBAdapter} from "../adapters/database/NeDBAdapter";
 import {PruneOption, Song, Source} from "../Types";
@@ -11,10 +10,10 @@ const NOW_PLAYING_TITLE = "Now Playing 🎵";
 const SKIPPED_MESSAGE = "⏩ ***Skipped*** 👍";
 const ANNOUNCEMENTS_OFF = "<:x2:814990341052432435> **I will no longer announce new songs**";
 const ANNOUNCEMENTS_ON = "✅ **I will now announce new songs**";
-const BOT_ID = getConfig(ConfigKey.rythmId);
 
-const isRythmEvent = (message: Message): boolean => {
-    return message.author.bot && message.author.id === BOT_ID;
+const isRythmEvent = async (message: Message): Promise<boolean> => {
+    const bot = await SettingsController.getBot(getGuild(message));
+    return message.author.bot && message.author.id === bot;
 };
 
 const errorHandler = (error: unknown) =>

@@ -10,8 +10,22 @@ const DEFAULT_MUTE = {channel:"", option: MuteOption.OFF};
 
 const DEFAULT_PRUNE = PruneOption.OFF;
 
-// TODO cache is bonk lol
-const settingCache = new Map<Setting, any>();
+const DEFAULT_BOT = String(getConfig(ConfigKey.defaultRythmId));
+
+type Guild = string;
+type Cache = Map<Setting, any>
+const settingCache = new Map<Guild, Cache>();
+
+const get = <T>(guild: Guild, setting: Setting): T => {
+    return settingCache.get(guild)?.get(setting);
+};
+
+const set = <T>(guild: Guild, setting: Setting, value: T): void => {
+    if (!settingCache.has(guild)) {
+        settingCache.set(guild, new Map<Setting, any>());
+    }
+    settingCache.get(guild).set(setting, value);
+};
 
 const assert = (scrutinee: boolean, reason: string) => {
     if (!scrutinee) {
@@ -21,13 +35,13 @@ const assert = (scrutinee: boolean, reason: string) => {
 
 const getSetting = async <T>(guild: string, setting: Setting, defaultSetting: T): Promise<T> => {
     const maybeSetting = settingCache.get(setting) ?? await NeDBAdapter.getSetting(guild, setting);
-    settingCache.set(setting, maybeSetting ?? defaultSetting);
-    return settingCache.get(setting);
+    set(guild, setting, maybeSetting ?? defaultSetting);
+    return get(guild, setting);
 };
 
 const setSetting = async <T>(guild: string, setting: Setting, newValue: T): Promise<void> => {
     await NeDBAdapter.setSetting(guild, setting, newValue);
-    settingCache.set(setting, newValue);
+    set(guild, setting, newValue);
 };
 
 const getPrefix = (guild: string): Promise<string> => getSetting(guild, Setting.PREFIX, DEFAULT_PREFIX);
@@ -51,6 +65,9 @@ const setPrune = (guild: string, prune: string): Promise<void> => {
     return setSetting(guild, Setting.PRUNE, prune);
 };
 
+const getBot = (guild: string): Promise<string> => getSetting(guild, Setting.BOT, DEFAULT_BOT);
+const setBot = (guild: string, bot: string): Promise<void> => setSetting(guild, Setting.BOT, bot);
+
 export default {
     setPrefix,
     getPrefix,
@@ -58,4 +75,6 @@ export default {
     getMute,
     getPrune,
     setPrune,
+    getBot,
+    setBot,
 };

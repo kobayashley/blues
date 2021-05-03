@@ -34,7 +34,8 @@ export interface SearchResult {
 export enum Setting {
     PREFIX = "prefix",
     MUTE = "mute",
-    PRUNE = "prune"
+    PRUNE = "prune",
+    BOT = "bot",
 }
 
 export interface MuteConfig {

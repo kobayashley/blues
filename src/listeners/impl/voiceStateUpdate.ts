@@ -1,27 +1,24 @@
 import {Listener} from "../Listener";
-import {Client, TextChannel, VoiceState} from "discord.js";
-import {ConfigKey, getConfig} from "../../util/Config";
+import {Client, VoiceState} from "discord.js";
 import Log from "../../util/Log";
 import SettingsController from "../../controllers/SettingsController";
 import {MuteOption} from "../../Types";
-import {getGuild} from "../../util/Util";
-
-const BOT_ID = String(getConfig(ConfigKey.rythmId));
 
 const voiceStateUpdate: Listener<"voiceStateUpdate"> = {
     name: "voiceStateUpdate",
     event: "voiceStateUpdate",
     procedure: (client: Client) => async (_: VoiceState, newVoiceState: VoiceState) => {
-
-        const {option} = await SettingsController.getMute(newVoiceState.guild.id);
         if (newVoiceState.channel) {
-            if (newVoiceState.id === BOT_ID) {
+            const guild = newVoiceState.guild.id;
+            const {option} = await SettingsController.getMute(guild);
+            const bot = await SettingsController.getBot(guild);
+            if (newVoiceState.id === bot) {
                 const futureMutes = newVoiceState.channel.members
-                    .filter((member) => member.id !== BOT_ID)
+                    .filter((member) => member.id !== bot)
                     .map((member) => strategies[option](client, member.voice));
                 return Promise.all(futureMutes);
             } else if (!newVoiceState.mute) {
-                if (newVoiceState.channel.members.has(BOT_ID)) {
+                if (newVoiceState.channel.members.has(bot)) {
                     await strategies[option](client, newVoiceState);
                 }
             }

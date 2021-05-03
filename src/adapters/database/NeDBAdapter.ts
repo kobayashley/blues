@@ -109,7 +109,7 @@ const getSetting = async <T>(guild: string, setting: Setting): Promise<T> => {
     const prefixCollection = getCollection(setting);
     const query = {guild};
     const document = await promisifyNeDB<DBConfig<T>>(prefixCollection.findOne.bind(prefixCollection))(query);
-    Log.debug(`Retrieved ${setting}:`, document);
+    Log.debug(`Retrieved ${setting} "${document.value}" for guild ${document.guild}`);
     return document?.value ?? null;
 };
 

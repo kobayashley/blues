@@ -2,12 +2,17 @@ import {ConfigKey, getConfig} from "./util/Config"; // Unfortunately must be the
 import {Client} from "discord.js";
 import {registerListeners} from "./listeners/RegisterListeners";
 import {registerCommands} from "./commands/CommandUtil";
+import Log from "./util/Log";
 
 const main = async () => {
-    const client = new Client();
-    const withCommands = await registerCommands(client);
-    const withListeners = await registerListeners(withCommands);
-    return withListeners.login(String(getConfig(ConfigKey.botToken)));
+    try {
+        const client = new Client();
+        const withCommands = await registerCommands(client);
+        const withListeners = await registerListeners(withCommands);
+        return withListeners.login(String(getConfig(ConfigKey.botToken)));
+    } catch (err) {
+        Log.error("Failed start Blues:", err);
+    }
 };
 
 main();

@@ -14,6 +14,8 @@ const mute: CommandBinder = (client: Client) => ({
         if (isMuteOption(arg)) {
             if (arg === MuteOption.OFF) {
                 // We're done!
+                await SettingsController.setMute(arg);
+                return message.channel.send("Mute is now disabled");
             } else {
                 // We need to get the correct channel to put warning into
                 getChannelReply(client, message, arg);

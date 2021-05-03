@@ -54,7 +54,7 @@ const getLatestSong = async (): Promise<Song> => {
         throw new Error("No latest song exists");
     }
     const [dbSong] = documents;
-    delete dbSong._id; // So no one can get a hold of it!
+    dbSong && delete dbSong._id; // So no one can get a hold of it!
     return dbSong;
 };
 

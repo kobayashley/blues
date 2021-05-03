@@ -3,6 +3,7 @@ import {ConfigKey, getConfig} from "../util/Config";
 import Log from "../util/Log";
 import {NeDBAdapter} from "../adapters/database/NeDBAdapter";
 import {Song, Source} from "../Types";
+import marked from "marked";
 
 const NOW_PLAYING_TITLE = "Now Playing 🎵";
 const SKIPPED_MESSAGE = "⏩ ***Skipped*** 👍";
@@ -23,7 +24,7 @@ const handleEvent = async (message: Message): Promise<void> => {
         await NeDBAdapter.addSong(song).catch(errorHandler);
     } else if (isSongSkippedAnnouncement(message)) {
         const song = await NeDBAdapter.getLatestSong();
-        if (!songStartedLongAgo(song)) {
+        if (song && !songStartedLongAgo(song)) {
             await NeDBAdapter.skipSong(song).catch(errorHandler);
         }
     } else if (isAnnouncementsOnAnnouncement(message)) {
@@ -46,8 +47,16 @@ const handleEvent = async (message: Message): Promise<void> => {
 const songStartedLongAgo = (song: Song): boolean => {
     const now = Date.now();
     const start = song.time ?? now;
-    // TODO implement stub
-    return true;
+    const length = song.length;
+    if ((now - start) >= 30000) {
+        Log.debug( `${song.name} started over 30 seconds`);
+        return true;
+    } else if (now > start + (length / 2)) {
+        Log.debug(`${song.name} has played over halfway through`);
+        return true;
+    }
+    Log.debug(`${song.name} just started!!`);
+    return false;
 };
 
 const parseSong = (message: Message): Song => {
@@ -65,27 +74,56 @@ const parseSong = (message: Message): Song => {
 
 // "[Name of the Song](https://www.youtube.com/watch?v=link)"
 const parseNameAndLink = (markdown: string): {name: string, link: string} => {
-    // TODO implement stub
-    return {name: "sameolemeek_", link: "https://www.youtube.com/watch?v=rKUJG5TdAl8"};
+    Log.debug(`Parsing name and link from: "${markdown}"`);
+    const tokens = marked.lexer(markdown);
+    const paragraph: any = tokens[0];
+    const link = paragraph.tokens[0].href;
+    const name = paragraph.tokens[0].text;
+    Log.debug(`found ${name} at ${link}`);
+    return {name, link};
 };
 
 // "`Length:` 4:20" | "`Length:` 4:20:00"
 const parseLength = (markdown: string): number => {
     Log.info(markdown);
-    // TODO implement stub
-    return 0;
+    const time = markdown.replace("`Length:` ", "");
+    const timeSegments = time.split(":");
+    const seconds = timeSegments[timeSegments.length - 1] ?? "0";
+    const minutes = timeSegments[timeSegments.length - 2] ?? "0";
+    const hours = timeSegments[timeSegments.length - 3] ?? "0";
+    Log.debug(`Hours: "${hours}", Minutes: "${minutes}", Seconds: "${seconds}"`);
+    return toMilliseconds(Number(hours), Number(minutes), Number(seconds));
+};
+
+const toMilliseconds = (hours: number, minutes: number, seconds: number): number => {
+    const hoursMS = hours * 60 * 60 * 1000;
+    const minutesMS = minutes * 60 * 1000;
+    const secondsMS = seconds * 1000;
+    return hoursMS + minutesMS + secondsMS;
 };
 
 // "`Requested by:` user#1234" | "`Requested by:` nickname (user#1234)"
 const parseRequester = (markdown: string): string => {
-    // TODO implement stub
-    return "braxtonhall";
+    const inputName = markdown.replace("`Requested by:` ", "");
+    let name;
+    if (!inputName.endsWith(")")) {
+        name = inputName;
+    } else {
+        const parenIndex = inputName.lastIndexOf("(");
+        name = inputName.slice(parenIndex + 1, -1);
+    }
+    Log.debug(`parenRequester name: ${name}`);
+    return name;
 };
 
 // "https://www.youtube.com/watch?v=link"
 const parseSource = (link: string): Source => {
-    // TODO implement stub
-    return Source.YOUTUBE;
+    const sources = Object.values(Source);
+    const maybeSource = sources.find((source) =>
+        link.includes(source));
+    const source = maybeSource ?? Source.UNKNOWN;
+    Log.debug(`source: ${source}`);
+    return source;
 };
 
 const createContentAnnouncementChecker = (content: string): (message: Message) => boolean =>

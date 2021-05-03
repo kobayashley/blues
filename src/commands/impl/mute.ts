@@ -17,10 +17,12 @@ const mute: CommandBinder = (client: Client) => ({
                 // We need to get the correct channel to put warning into
                 if (message.mentions.channels.size === 1) {
                     channel = message.mentions.channels.first();
+                } else {
+                    channel = message.channel;
                 }
             }
-            await saveConfiguration(getGuild(message), MuteOption.OFF, channel?.id ?? "");
-            const channelMessage = channel ? "" : `; Warnings will be sent to ${channel.toString()}`;
+            await saveConfiguration(getGuild(message), arg, channel?.id ?? "");
+            const channelMessage = channel ? `; Warnings will be sent to ${channel.toString()}` : "";
             return message.channel.send(`Mute is now \`${arg}\`${channelMessage}`);
         } else {
             // Tell the user the proper usage

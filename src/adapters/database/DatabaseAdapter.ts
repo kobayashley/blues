@@ -13,5 +13,5 @@ export interface DatabaseAdapter {
 
     // playlist
     addPlaylist(guild: string, playlist: Playlist): Promise<void>;
-    listsPlaylists(guild: string): Promise<Playlist[]>;
+    listPlaylists(guild: string): Promise<Playlist[]>;
 }

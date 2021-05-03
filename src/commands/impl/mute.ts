@@ -1,11 +1,10 @@
-import {Command, CommandBinder} from "../Command";
-import {Channel, Client, DMChannel, Message, NewsChannel, TextChannel} from "discord.js";
+import {CommandBinder} from "../Command";
+import {Channel, Message} from "discord.js";
 import SettingsController from "../../controllers/SettingsController";
 import {MuteConfig, MuteOption} from "../../Types";
-import Log from "../../util/Log";
 import {getGuild, isMuteOption} from "../../util/Util";
 
-const mute: CommandBinder = (client: Client) => ({
+const mute: CommandBinder = () => ({
     name: "mute",
     description: "Turn on automatic muting when in voice with Rythm",
     usage: `mute <setting = ${MuteOption.OFF} | ${MuteOption.WARN} | ${MuteOption.ON}> <channel (opt)>`,

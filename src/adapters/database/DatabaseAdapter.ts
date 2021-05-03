@@ -1,4 +1,4 @@
-import {Setting, Song} from "../../Types";
+import {Playlist, Setting, Song} from "../../Types";
 
 export interface DatabaseAdapter {
     // settings
@@ -10,4 +10,8 @@ export interface DatabaseAdapter {
     getLatestSong(guild: string): Promise<Song>;
     skipSong(guild: string, song: Song): Promise<void>;
     getSongsBetween(guild: string, from: number, until: number): Promise<Song[]>;
+
+    // playlist
+    addPlaylist(guild: string, playlist: Playlist): Promise<void>;
+    listsPlaylists(guild: string): Promise<Playlist[]>;
 }

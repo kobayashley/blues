@@ -25,9 +25,9 @@ const getAllCommands = (): Command[] => {
 };
 
 const isCommandFormatted = async (message: Message): Promise<boolean> => {
-    // is from a person and is prefixed
+    // is from a person and is prefixed and is from a guild
     const prefix = await PrefixController.getPrefix(getGuild(message));
-    return message.author.bot === false && message.content.trim().startsWith(prefix);
+    return message.guild && message.author.bot === false && message.content.trim().startsWith(prefix);
 };
 
 const parseCommandAndArgs = async (message: Message): Promise<{command: string, args: string[]}> => {

@@ -13,7 +13,9 @@ const createPlaylist: CommandBinder = () => ({
         const now = Date.now();
         const dayStart = new Date(now).setHours(0, 0, 0);
         const songs = await NeDBAdapter.getSongsBetween(getGuild(message), dayStart, now);
-        const {name, link} = await PlaylistController.createPlaylist(songs);
+        const playlist = await PlaylistController.createPlaylist(songs);
+        await  NeDBAdapter.addPlaylist(getGuild(message), playlist);
+        const {name, link} = playlist;
         const embed = createPlaylistEmbed(name, link);
         return message.channel.send(embed);
     },

@@ -21,6 +21,8 @@ export interface Song {
 export interface Playlist {
     name: string;
     link: string;
+    source: Source;
+    time?: number; // time is was created
 }
 
 export interface SearchResult {

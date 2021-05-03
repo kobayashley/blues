@@ -2,6 +2,7 @@ import {CommandBinder} from "../Command";
 import {Message, MessageEmbed} from "discord.js";
 import {NeDBAdapter} from "../../adapters/database/NeDBAdapter";
 import PlaylistController from "../../controllers/PlaylistController";
+import {getGuild} from "../../util/Util";
 
 // TODO future: <source (opt) = 'youtube' | 'spotify'> <startTime (opt)> <endTime (opt)> <name (opt)>
 const createPlaylist: CommandBinder = () => ({
@@ -11,7 +12,7 @@ const createPlaylist: CommandBinder = () => ({
     procedure: async (message: Message, args: string[]) => {
         const now = Date.now();
         const dayStart = new Date(now).setHours(0, 0, 0);
-        const songs = await NeDBAdapter.getSongsBetween(dayStart, now);
+        const songs = await NeDBAdapter.getSongsBetween(getGuild(message), dayStart, now);
         const {name, link} = await PlaylistController.createPlaylist(songs);
         const embed = createPlaylistEmbed(name, link);
         return message.channel.send(embed);

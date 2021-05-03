@@ -1,6 +1,7 @@
 import {CommandBinder} from "../Command";
 import {Message} from "discord.js";
 import SettingsController from "../../controllers/SettingsController";
+import {getGuild} from "../../util/Util";
 
 const prefix: CommandBinder = () => ({
     name: "prefix",
@@ -11,7 +12,7 @@ const prefix: CommandBinder = () => ({
         let reply;
         if (arg) {
             try {
-                await SettingsController.setPrefix(arg);
+                await SettingsController.setPrefix(getGuild(message), arg);
                 reply = `Prefix has been updated to \`${arg}\``;
             } catch (err) {
                 reply = err.message;

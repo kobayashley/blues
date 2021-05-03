@@ -1,5 +1,6 @@
 import fs from "fs";
 import {MuteConfig, MuteOption, PruneOption} from "../Types";
+import {Message} from "discord.js";
 
 const batchImport = (directory: string): Promise<any[]> => {
     const files = fs.readdirSync(directory)
@@ -19,4 +20,6 @@ const isMuteConfig = (maybeMuteConfig: any): maybeMuteConfig is MuteConfig =>
 const isPruneOption = (maybePruneOption: any): maybePruneOption is PruneOption =>
     Object.values(PruneOption).includes(maybePruneOption);
 
-export {batchImport, isMuteOption, isPruneOption, isMuteConfig};
+const getGuild = (message: Message): string => message.guild?.id ?? "";
+
+export {batchImport, isMuteOption, isPruneOption, isMuteConfig, getGuild};

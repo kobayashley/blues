@@ -5,6 +5,7 @@ import {NeDBAdapter} from "../adapters/database/NeDBAdapter";
 import {PruneOption, Song, Source} from "../Types";
 import marked from "marked";
 import SettingsController from "./SettingsController";
+import {getGuild} from "../util/Util";
 
 const NOW_PLAYING_TITLE = "Now Playing 🎵";
 const SKIPPED_MESSAGE = "⏩ ***Skipped*** 👍";
@@ -23,9 +24,10 @@ const handleEvent = async (message: Message): Promise<void> => {
     if (isNowPlayingAnnouncement(message)) {
         await handleNowPlayingEvent(message);
     } else if (isSongSkippedAnnouncement(message)) {
-        const song = await NeDBAdapter.getLatestSong();
+        const guild = getGuild(message);
+        const song = await NeDBAdapter.getLatestSong(guild);
         if (song && !songStartedLongAgo(song)) {
-            await NeDBAdapter.skipSong(song).catch(errorHandler);
+            await NeDBAdapter.skipSong(guild, song).catch(errorHandler);
         }
     } else if (isAnnouncementsOnAnnouncement(message)) {
         await message.react("💆‍♀️").catch(errorHandler);
@@ -38,8 +40,9 @@ const handleEvent = async (message: Message): Promise<void> => {
 
 const handleNowPlayingEvent = async (message: Message): Promise<void> => {
     const song: Song = parseSong(message);
-    await NeDBAdapter.addSong(song).catch(errorHandler);
-    const prune = await SettingsController.getPrune();
+    const guild = getGuild(message);
+    await NeDBAdapter.addSong(guild, song).catch(errorHandler);
+    const prune = await SettingsController.getPrune(guild);
     if (prune === PruneOption.ON) {
         try {
             Log.info("Deleting Rythm announcement");

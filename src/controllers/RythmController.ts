@@ -2,8 +2,9 @@ import {Message, MessageEmbed} from "discord.js";
 import {ConfigKey, getConfig} from "../util/Config";
 import Log from "../util/Log";
 import {NeDBAdapter} from "../adapters/database/NeDBAdapter";
-import {Song, Source} from "../Types";
+import {PruneOption, Song, Source} from "../Types";
 import marked from "marked";
+import SettingsController from "./SettingsController";
 
 const NOW_PLAYING_TITLE = "Now Playing 🎵";
 const SKIPPED_MESSAGE = "⏩ ***Skipped*** 👍";
@@ -20,8 +21,7 @@ const errorHandler = (error: unknown) =>
 
 const handleEvent = async (message: Message): Promise<void> => {
     if (isNowPlayingAnnouncement(message)) {
-        const song: Song = parseSong(message);
-        await NeDBAdapter.addSong(song).catch(errorHandler);
+        await handleNowPlayingEvent(message);
     } else if (isSongSkippedAnnouncement(message)) {
         const song = await NeDBAdapter.getLatestSong();
         if (song && !songStartedLongAgo(song)) {
@@ -33,6 +33,21 @@ const handleEvent = async (message: Message): Promise<void> => {
         await message.channel
             .send("⚠ **Turning off announcements will prevent me from saving songs!**")
             .catch(errorHandler);
+    }
+};
+
+const handleNowPlayingEvent = async (message: Message): Promise<void> => {
+    const song: Song = parseSong(message);
+    await NeDBAdapter.addSong(song).catch(errorHandler);
+    const prune = await SettingsController.getPrune();
+    if (prune === PruneOption.ON) {
+        try {
+            Log.info("Deleting Rythm announcement");
+            await message.delete();
+        } catch (err) {
+            Log.error("Could not delete Rythm announcement");
+            await message.channel.send("Warning: pruning has been enabled, yet Blues lacks the permissions to do so");
+        }
     }
 };
 
@@ -85,7 +100,6 @@ const parseNameAndLink = (markdown: string): {name: string, link: string} => {
 
 // "`Length:` 4:20" | "`Length:` 4:20:00"
 const parseLength = (markdown: string): number => {
-    Log.info(markdown);
     const time = markdown.replace("`Length:` ", "");
     const timeSegments = time.split(":");
     const seconds = timeSegments[timeSegments.length - 1] ?? "0";
@@ -112,7 +126,7 @@ const parseRequester = (markdown: string): string => {
         const parenIndex = inputName.lastIndexOf("(");
         name = inputName.slice(parenIndex + 1, -1);
     }
-    Log.debug(`parenRequester name: ${name}`);
+    Log.debug(`parseRequester name: ${name}`);
     return name;
 };
 

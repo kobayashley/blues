@@ -7,19 +7,20 @@ import {MuteOption} from "../../Types";
 
 const BOT_ID = String(getConfig(ConfigKey.rythmId));
 
-const voiceListener: Listener<"voiceStateUpdate"> = {
+const voiceStateUpdate: Listener<"voiceStateUpdate"> = {
+    name: "voiceStateUpdate",
     event: "voiceStateUpdate",
     procedure: (client: Client) => async (oldVoiceState: VoiceState, newVoiceState: VoiceState) => {
-        const mute = await SettingsController.getMute();
+        const {option} = await SettingsController.getMute();
         if (newVoiceState.channel) {
             if (newVoiceState.id === BOT_ID) {
                 const futureMutes = newVoiceState.channel.members
                     .filter((member) => member.id !== BOT_ID)
-                    .map((member) => strategies[mute](client, member.voice));
+                    .map((member) => strategies[option](client, member.voice));
                 return Promise.all(futureMutes);
             } else if (!newVoiceState.mute) {
                 if (newVoiceState.channel.members.has(BOT_ID)) {
-                    await strategies[mute](client, newVoiceState);
+                    await strategies[option](client, newVoiceState);
                 }
             }
         }
@@ -38,8 +39,8 @@ const performMute = async (client: Client, voiceState: VoiceState): Promise<void
 };
 
 const performWarn = async (client: Client, voiceState: VoiceState, message = ", you're not muted!"): Promise<void> => {
-    const warningChannelID = await SettingsController.getWarningChannel();
-    const warningChannel = await client.channels.fetch(warningChannelID);
+    const {channel} = await SettingsController.getMute();
+    const warningChannel = await client.channels.fetch(channel);
     if (warningChannel.isText()) {
         await warningChannel.send(`${voiceState.member.user.toString()}${message}`);
     }
@@ -53,4 +54,4 @@ const strategies: {[strategy: string]: MuteStrategy} = {
     [MuteOption.OFF]: performNothing,
 };
 
-module.exports = voiceListener;
+module.exports = voiceStateUpdate;

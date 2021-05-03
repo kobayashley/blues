@@ -1,19 +1,21 @@
 import {Command, CommandBinder} from "../Command";
 import {Client, DMChannel, Message, NewsChannel, TextChannel} from "discord.js";
 import SettingsController from "../../controllers/SettingsController";
-import {MuteOption} from "../../Types";
+import {MuteConfig, MuteOption} from "../../Types";
 import Log from "../../util/Log";
 import {isMuteOption} from "../../util/Util";
 
 const mute: CommandBinder = (client: Client) => ({
     name: "mute",
     description: "Turn on automatic muting when in voice with Rythm",
-    usage: "mute <setting = off | warn | on>",
+    usage: `mute <setting = ${MuteOption.OFF} | ${MuteOption.WARN} | ${MuteOption.ON}>`,
     procedure: async (message: Message, args: string[]) => {
         const [arg] = args;
         if (isMuteOption(arg)) {
             if (arg === MuteOption.OFF) {
                 // We're done!
+                await saveConfiguration(MuteOption.OFF, "");
+                return message.channel.send("Mute is now disabled");
             } else {
                 // We need to get the correct channel to put warning into
                 getChannelReply(client, message, arg);
@@ -21,7 +23,7 @@ const mute: CommandBinder = (client: Client) => ({
             }
         } else {
             // Tell the user the proper usage
-            return message.channel.send("Mute must be set to 'on', 'off', or 'warn'");
+            return message.channel.send(`Mute must be set to '${MuteOption.ON}', '${MuteOption.OFF}', or '${MuteOption.WARN}'`);
         }
     },
 });
@@ -51,10 +53,9 @@ const getChannelReply = (client: Client, oldMessage: Message, mute: MuteOption) 
     client.on("message", listener);
 };
 
-const saveConfiguration = async (mute: MuteOption, channel: string): Promise<void> => {
-    const futureSetMute = SettingsController.setMute(mute);
-    const futureSetWarningChannel = SettingsController.setWarningChannel(channel);
-    await Promise.all([futureSetMute, futureSetWarningChannel]);
+const saveConfiguration = async (option: MuteOption, channel: string): Promise<void> => {
+    const config: MuteConfig = {option, channel};
+    await SettingsController.setMute(config);
 };
 
 const cancelMuteConfiguration = (client, listener, channel) =>

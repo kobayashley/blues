@@ -4,6 +4,7 @@ import {Message} from "discord.js";
 import RythmController from "../../controllers/RythmController";
 
 const rythmEvent: Listener<"message"> = {
+    name: "rythmEvent",
     event: "message",
     procedure: () => async (message: Message) => {
         if (RythmController.isRythmEvent(message)) {

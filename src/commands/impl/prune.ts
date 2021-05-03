@@ -1,8 +1,7 @@
 import {CommandBinder} from "../Command";
 import {Message} from "discord.js";
 import {isPruneOption} from "../../util/Util";
-import {Setting} from "../../Types";
-import {NeDBAdapter} from "../../adapters/database/NeDBAdapter";
+import SettingsController from "../../controllers/SettingsController";
 
 const prune: CommandBinder = () => ({
     name: "prune",
@@ -11,7 +10,8 @@ const prune: CommandBinder = () => ({
     procedure: async (message: Message, args: string[]) => {
         const [arg] = args;
         if (isPruneOption(arg)) {
-            await NeDBAdapter.setSetting(Setting.PRUNE, arg);
+            // TODO assert that you have the permissions to delete bot messages
+            await SettingsController.setPrune(arg);
             return message.channel.send(`Prune set to \`${arg}\``);
         } else {
             // Tell the user the proper usage

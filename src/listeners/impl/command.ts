@@ -4,6 +4,7 @@ import {Message} from "discord.js";
 import {getCommand, isCommandFormatted, parseCommandAndArgs} from "../../commands/CommandUtil";
 
 const issueCommand: Listener<"message"> = {
+    name: "issueCommand",
     event: "message",
     procedure: () => async (message: Message) => {
         if (await isCommandFormatted(message)) {

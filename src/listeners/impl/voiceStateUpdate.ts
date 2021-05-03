@@ -8,6 +8,7 @@ import {MuteOption} from "../../Types";
 const BOT_ID = String(getConfig(ConfigKey.rythmId));
 
 const voiceStateUpdate: Listener<"voiceStateUpdate"> = {
+    name: "voiceStateUpdate",
     event: "voiceStateUpdate",
     procedure: (client: Client) => async (oldVoiceState: VoiceState, newVoiceState: VoiceState) => {
         const mute = await SettingsController.getMute();

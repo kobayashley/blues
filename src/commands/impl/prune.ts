@@ -1,22 +1,30 @@
 import {CommandBinder} from "../Command";
-import {Message} from "discord.js";
+import {Client, Message} from "discord.js";
 import {isPruneOption} from "../../util/Util";
 import SettingsController from "../../controllers/SettingsController";
+import Log from "../../util/Log";
+import {PruneOption} from "../../Types";
 
-const prune: CommandBinder = () => ({
+const prune: CommandBinder = (client: Client) => ({
     name: "prune",
     description: "Turn on automatic song announcement deletion",
-    usage: "mute <setting = off | on>",
+    usage: `mute <setting = ${PruneOption.ON} | ${PruneOption.OFF}>`,
     procedure: async (message: Message, args: string[]) => {
         const [arg] = args;
-        if (isPruneOption(arg)) {
-            // TODO assert that you have the permissions to delete bot messages
-            await SettingsController.setPrune(arg);
-            return message.channel.send(`Prune set to \`${arg}\``);
-        } else {
+        if (!isPruneOption(arg)) {
             // Tell the user the proper usage
-            return message.channel.send("Prune must be set to 'on' or 'off'");
+            return message.channel.send(`Prune must be set to '${PruneOption.ON}' or '${PruneOption.OFF}'`);
+        } else if (arg === PruneOption.ON) {
+            Log.info("Attempting to enable message pruning");
+            const clientMember = message.guild.member(client.user);
+            const manageMessages = clientMember.hasPermission("MANAGE_MESSAGES");
+            if (!manageMessages) {
+                Log.info("Blues lacking permissions to enable message pruning");
+                return message.channel.send("Blues lacks the permissions to prune announcement messages");
+            }
         }
+        await SettingsController.setPrune(arg);
+        return message.channel.send(`Prune set to \`${arg}\``);
     },
 });
 

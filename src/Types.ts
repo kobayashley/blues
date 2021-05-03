@@ -55,5 +55,5 @@ export enum MuteOption {
 
 export enum PruneOption {
     ON = "on",
-    OFF = "OFF",
+    OFF = "off",
 }

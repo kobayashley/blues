@@ -46,7 +46,7 @@ const handleNowPlayingEvent = async (message: Message): Promise<void> => {
             await message.delete();
         } catch (err) {
             Log.error("Could not delete Rythm announcement");
-            // TODO should really tell the channel
+            await message.channel.send("Warning: pruning has been enabled, yet Blues lacks the permissions to do so");
         }
     }
 };

@@ -4,6 +4,7 @@ import PlaylistController from "../../controllers/PlaylistController";
 import {getGuild} from "../../util/Util";
 import {getDatabaseAdapter} from "../../adapters/database/DatabaseAdapter";
 import Log from "../../util/Log";
+import {Source} from "../../Types";
 
 const database = getDatabaseAdapter();
 
@@ -18,7 +19,7 @@ const playlist: CommandBinder = () => ({
         try {
             await message.channel.send("Creating a new playlist...");
             const songs = await database.getSongsBetween(getGuild(message), dayStart, now);
-            const playlist = await PlaylistController.createPlaylist(songs);
+            const playlist = await PlaylistController.createPlaylist(songs, Source.YOUTUBE);
             await  database.addPlaylist(getGuild(message), playlist);
             const {name, link} = playlist;
             const embed = createPlaylistEmbed(name, link);

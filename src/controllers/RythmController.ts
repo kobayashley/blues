@@ -69,7 +69,6 @@ const handlePruning = async (message: Message, guild: string, embedDescription: 
         } catch (err) {
             Log.error("Could not delete Rythm announcement");
             await message.channel.send("Warning: pruning has been enabled, yet Blues lacks the permissions to do so");
-            return;
         }
     }
 };

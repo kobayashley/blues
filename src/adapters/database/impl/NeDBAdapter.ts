@@ -125,7 +125,7 @@ const getRefreshToken = async (): Promise<string> => {
     const collection = getCollection(Entity.REFRESH_TOKEN);
     const query = {};
     const document = await promisifyNeDB<{refresh: string}>(collection.findOne.bind(collection))(query);
-    return document.refresh;
+    return document?.refresh ?? null;
 };
 
 const setRefreshToken = (refresh: string): Promise<void> => {

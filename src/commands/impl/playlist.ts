@@ -3,6 +3,8 @@ import {Message, MessageEmbed} from "discord.js";
 import PlaylistController from "../../controllers/PlaylistController";
 import {getGuild} from "../../util/Util";
 import {getDatabaseAdapter} from "../../adapters/database/DatabaseAdapter";
+import Log from "../../util/Log";
+import {Source} from "../../Types";
 
 const database = getDatabaseAdapter();
 
@@ -14,12 +16,23 @@ const playlist: CommandBinder = () => ({
     procedure: async (message: Message) => {
         const now = Date.now();
         const dayStart = new Date(now).setHours(0, 0, 0);
-        const songs = await database.getSongsBetween(getGuild(message), dayStart, now);
-        const playlist = await PlaylistController.createPlaylist(songs);
-        await  database.addPlaylist(getGuild(message), playlist);
-        const {name, link} = playlist;
-        const embed = createPlaylistEmbed(name, link);
-        return message.channel.send(embed);
+        try {
+            await message.channel.send("Creating a new playlist...");
+            const songs = await database.getSongsBetween(getGuild(message), dayStart, now);
+            if (songs.length > 0) {
+                const playlist = await PlaylistController.createPlaylist(songs, Source.YOUTUBE);
+                await  database.addPlaylist(getGuild(message), playlist);
+                const {name, link} = playlist;
+                const embed = createPlaylistEmbed(name, link);
+                return message.channel.send(embed);
+            } else {
+                return message.channel.send("There are no songs to add to a playlist");
+            }
+        } catch (err) {
+            Log.error("Failed to create a playlist", err);
+            return message.channel.send("Failed to create this playlist.");
+        }
+
     },
 });
 

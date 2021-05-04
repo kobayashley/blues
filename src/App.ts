@@ -3,9 +3,11 @@ import {Client} from "discord.js";
 import {registerListeners} from "./listeners/RegisterListeners";
 import {registerCommands} from "./commands/CommandUtil";
 import Log from "./util/Log";
+import AuthenticatorService from "./services/AuthenticatorService";
 
 const main = async () => {
     try {
+        await AuthenticatorService.init();
         const client = new Client();
         const withCommands = await registerCommands(client);
         const withListeners = await registerListeners(withCommands);

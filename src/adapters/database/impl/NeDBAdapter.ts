@@ -6,6 +6,7 @@ import Log from "../../../util/Log";
 enum Entity {
     SONGS = "songs",
     PLAYLISTS = "playlists",
+    REFRESH_TOKEN = "token",
 }
 
 type Collection = Entity | Setting
@@ -116,8 +117,20 @@ const getSetting = async <T>(guild: string, setting: Setting): Promise<T> => {
 const setSetting = async <T>(guild: string, setting: Setting, value: T): Promise<void> => {
     Log.debug(`Setting ${setting}:`, value);
     const config = {value, guild};
-    const prefixCollection = getCollection(setting);
-    return promisifyNeDB<void>(prefixCollection.update.bind(prefixCollection))({}, config, {upsert: true});
+    const collection = getCollection(setting);
+    return promisifyNeDB<void>(collection.update.bind(collection))({guild}, config, {upsert: true});
+};
+
+const getRefreshToken = async (): Promise<string> => {
+    const collection = getCollection(Entity.REFRESH_TOKEN);
+    const query = {};
+    const document = await promisifyNeDB<{refresh: string}>(collection.findOne.bind(collection))(query);
+    return document?.refresh ?? null;
+};
+
+const setRefreshToken = (refresh: string): Promise<void> => {
+    const collection = getCollection(Entity.REFRESH_TOKEN);
+    return promisifyNeDB<void>(collection.update.bind(collection))({}, {refresh}, {upsert: true});
 };
 
 export const NeDBAdapter: DatabaseAdapter = {
@@ -129,4 +142,6 @@ export const NeDBAdapter: DatabaseAdapter = {
     skipSong,
     addPlaylist,
     listPlaylists,
+    getRefreshToken,
+    setRefreshToken,
 };

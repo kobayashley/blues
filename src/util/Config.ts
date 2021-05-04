@@ -6,12 +6,20 @@ export enum ConfigKey {
     botToken = "botToken",
     defaultRythmId = "defaultRythmId",
     defaultPrefix = "defaultPrefix",
+
+    googleClientId = "googleClientId",
+    googleSecretKey = "googleSecretKey",
+    googleOauthCallback = "googleOathCallback",
 }
 
 const config: {[key: string]: number | string | boolean} = {
     [ConfigKey.botToken]:        process.env.BOT_TOKEN,
     [ConfigKey.defaultRythmId]:  process.env.RYTHM_ID,
     [ConfigKey.defaultPrefix]:   process.env.DEFAULT_PREFIX,
+
+    [ConfigKey.googleClientId]:      process.env.GOOGLE_CLIENT_ID,
+    [ConfigKey.googleSecretKey]:     process.env.GOOGLE_CLIENT_SECRET,
+    [ConfigKey.googleOauthCallback]: process.env.GOOGLE_OAUTH2_CALLBACK,
 };
 
 export const getConfig = (key: ConfigKey): number | string | boolean => {

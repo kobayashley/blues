@@ -1,16 +1,18 @@
 import {Message, MessageEmbed} from "discord.js";
 import Log from "../util/Log";
-import {NeDBAdapter} from "../adapters/database/NeDBAdapter";
 import {PruneOption, Song, Source} from "../Types";
 import marked from "marked";
 import SettingsController from "./SettingsController";
 import {getGuild} from "../util/Util";
+import {getDatabaseAdapter} from "../adapters/database/DatabaseAdapter";
 
 const NOW_PLAYING_TITLE = "Now Playing 🎵";
 const SKIPPED_MESSAGE = "⏩ ***Skipped*** 👍";
 const ANNOUNCEMENTS_OFF = "<:x2:814990341052432435> **I will no longer announce new songs**";
 const ANNOUNCEMENTS_ON = "✅ **I will now announce new songs**";
 const ADDED_TO_QUEUE_AUTHOR = "Added to queue";
+
+const database = getDatabaseAdapter();
 
 const isRythmEvent = async (message: Message): Promise<boolean> => {
     const bot = await SettingsController.getBot(getGuild(message));
@@ -25,9 +27,9 @@ const handleEvent = async (message: Message): Promise<void> => {
         await handleNowPlayingEvent(message);
     } else if (isSongSkippedAnnouncement(message)) {
         const guild = getGuild(message);
-        const song = await NeDBAdapter.getLatestSong(guild);
+        const song = await database.getLatestSong(guild);
         if (song && !songStartedLongAgo(song)) {
-            await NeDBAdapter.skipSong(guild, song).catch(errorHandler);
+            await database.skipSong(guild, song).catch(errorHandler);
         }
     } else if (isAnnouncementsOnAnnouncement(message)) {
         await message.react("💆‍♀️").catch(errorHandler);
@@ -43,7 +45,7 @@ const handleEvent = async (message: Message): Promise<void> => {
 const handleNowPlayingEvent = async (message: Message): Promise<void> => {
     const song: Song = parseSong(message);
     const guild = getGuild(message);
-    await NeDBAdapter.addSong(guild, song).catch(errorHandler);
+    await database.addSong(guild, song).catch(errorHandler);
     await handlePruning(message, guild, `**Now Playing** [${song.name}](${song.link})`);
 };
 

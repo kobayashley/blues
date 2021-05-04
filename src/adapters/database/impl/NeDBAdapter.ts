@@ -1,7 +1,7 @@
 import Datastore from "nedb";
-import {DatabaseAdapter} from "./DatabaseAdapter";
-import {Playlist, Setting, Song} from "../../Types";
-import Log from "../../util/Log";
+import {DatabaseAdapter} from "../DatabaseAdapter";
+import {Playlist, Setting, Song} from "../../../Types";
+import Log from "../../../util/Log";
 
 enum Entity {
     SONGS = "songs",

@@ -1,4 +1,5 @@
 import {Playlist, Setting, Song} from "../../Types";
+import {NeDBAdapter} from "./impl/NeDBAdapter";
 
 export interface DatabaseAdapter {
     // settings
@@ -15,3 +16,5 @@ export interface DatabaseAdapter {
     addPlaylist(guild: string, playlist: Playlist): Promise<void>;
     listPlaylists(guild: string): Promise<Playlist[]>;
 }
+
+export const getDatabaseAdapter = (): DatabaseAdapter => NeDBAdapter;

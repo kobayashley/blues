@@ -14,7 +14,7 @@ const voiceStateUpdate: Listener<"voiceStateUpdate"> = {
             const bot = await SettingsController.getBot(guild);
             if (newVoiceState.id === bot) {
                 const futureMutes = newVoiceState.channel.members
-                    .filter((member) => member.id !== bot)
+                    .filter((member) => member.id !== bot && member.voice.mute === false)
                     .map((member) => strategies[option](client, member.voice));
                 return Promise.all(futureMutes);
             } else if (!newVoiceState.mute) {

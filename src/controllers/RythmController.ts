@@ -2,7 +2,6 @@ import {Message, MessageEmbed} from "discord.js";
 import Log from "../util/Log";
 import {NeDBAdapter} from "../adapters/database/NeDBAdapter";
 import {PruneOption, Song, Source} from "../Types";
-import marked from "marked";
 import SettingsController from "./SettingsController";
 import {getGuild} from "../util/Util";
 
@@ -112,10 +111,9 @@ const parseSong = (message: Message): Song => {
 // "[Name of the Song](https://www.youtube.com/watch?v=link)"
 const parseNameAndLink = (markdown: string): {name: string, link: string} => {
     Log.debug(`Parsing name and link from: "${markdown}"`);
-    const tokens = marked.lexer(markdown);
-    const paragraph: any = tokens[0];
-    const link = paragraph.tokens[0].href;
-    const name = paragraph.tokens[0].text;
+    const separator = "](";
+    const link = markdown.slice(markdown.lastIndexOf(separator) + separator.length, -1);
+    const name = markdown.slice(1, markdown.lastIndexOf(separator));
     Log.debug(`found ${name} at ${link}`);
     return {name, link};
 };

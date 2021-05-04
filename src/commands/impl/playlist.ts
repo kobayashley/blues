@@ -19,11 +19,15 @@ const playlist: CommandBinder = () => ({
         try {
             await message.channel.send("Creating a new playlist...");
             const songs = await database.getSongsBetween(getGuild(message), dayStart, now);
-            const playlist = await PlaylistController.createPlaylist(songs, Source.YOUTUBE);
-            await  database.addPlaylist(getGuild(message), playlist);
-            const {name, link} = playlist;
-            const embed = createPlaylistEmbed(name, link);
-            return message.channel.send(embed);
+            if (songs.length > 0) {
+                const playlist = await PlaylistController.createPlaylist(songs, Source.YOUTUBE);
+                await  database.addPlaylist(getGuild(message), playlist);
+                const {name, link} = playlist;
+                const embed = createPlaylistEmbed(name, link);
+                return message.channel.send(embed);
+            } else {
+                return message.channel.send("There are no songs to add to a playlist");
+            }
         } catch (err) {
             Log.error("Failed to create a playlist", err);
             return message.channel.send("Failed to create this playlist.");

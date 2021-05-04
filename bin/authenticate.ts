@@ -33,8 +33,10 @@ app.get(new URL(redirectUri).pathname, async (req: Request, res: Response) => {
     await getDatabaseAdapter().setRefreshToken(tokens.refresh_token);
     Log.info("Acquired new refresh token. Closing server");
     res.send("Success! You may close this tab.");
-    server.close();
-    process.exit(0);
+    server.close(() => {
+        Log.info("Server closed");
+        process.exit(0);
+    });
 });
 
 const server = app.listen(3000, async () => {

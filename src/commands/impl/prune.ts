@@ -8,12 +8,12 @@ import {PruneOption} from "../../Types";
 const prune: CommandBinder = (client: Client) => ({
     name: "prune",
     description: "Turn on automatic song announcement deletion",
-    usage: `mute <setting = ${PruneOption.ON} | ${PruneOption.OFF}>`,
+    usage: `mute <setting = ${PruneOption.ON} | ${PruneOption.OFF} | ${PruneOption.REPLACE}>`,
     procedure: async (message: Message, args: string[]) => {
         const [arg] = args;
         if (!isPruneOption(arg)) {
             // Tell the user the proper usage
-            return message.channel.send(`Prune must be set to '${PruneOption.ON}' or '${PruneOption.OFF}'`);
+            return message.channel.send(`Prune must be set to '${PruneOption.ON}', '${PruneOption.OFF}', or '${PruneOption.REPLACE}'`);
         } else if (arg === PruneOption.ON) {
             Log.info("Attempting to enable message pruning");
             const clientMember = message.guild?.member(client.user);

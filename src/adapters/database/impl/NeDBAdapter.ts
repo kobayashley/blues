@@ -117,8 +117,8 @@ const getSetting = async <T>(guild: string, setting: Setting): Promise<T> => {
 const setSetting = async <T>(guild: string, setting: Setting, value: T): Promise<void> => {
     Log.debug(`Setting ${setting}:`, value);
     const config = {value, guild};
-    const prefixCollection = getCollection(setting);
-    return promisifyNeDB<void>(prefixCollection.update.bind(prefixCollection))({}, config, {upsert: true});
+    const collection = getCollection(setting);
+    return promisifyNeDB<void>(collection.update.bind(collection))({guild}, config, {upsert: true});
 };
 
 const getRefreshToken = async (): Promise<string> => {
@@ -130,7 +130,7 @@ const getRefreshToken = async (): Promise<string> => {
 
 const setRefreshToken = (refresh: string): Promise<void> => {
     const collection = getCollection(Entity.REFRESH_TOKEN);
-    return promisifyNeDB<void>(collection.insert.bind(collection))({refresh});
+    return promisifyNeDB<void>(collection.update.bind(collection))({}, {refresh}, {upsert: true});
 };
 
 export const NeDBAdapter: DatabaseAdapter = {

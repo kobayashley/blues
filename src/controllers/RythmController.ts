@@ -10,6 +10,7 @@ const NOW_PLAYING_TITLE = "Now Playing 🎵";
 const SKIPPED_MESSAGE = "⏩ ***Skipped*** 👍";
 const ANNOUNCEMENTS_OFF = "<:x2:814990341052432435> **I will no longer announce new songs**";
 const ANNOUNCEMENTS_ON = "✅ **I will now announce new songs**";
+const ADDED_TO_QUEUE_AUTHOR = "Added to queue";
 
 const database = getDatabaseAdapter();
 
@@ -36,6 +37,8 @@ const handleEvent = async (message: Message): Promise<void> => {
         await message.channel
             .send("⚠ **Turning off announcements will prevent me from saving songs!**")
             .catch(errorHandler);
+    } else if (isSongQueuedAnnouncement(message)) {
+        await handleSongQueuedEvent(message);
     }
 };
 
@@ -43,11 +46,28 @@ const handleNowPlayingEvent = async (message: Message): Promise<void> => {
     const song: Song = parseSong(message);
     const guild = getGuild(message);
     await database.addSong(guild, song).catch(errorHandler);
+    await handlePruning(message, guild, `**Now Playing** [${song.name}](${song.link})`);
+};
+
+const handleSongQueuedEvent = async (message: Message): Promise<void> => {
+    const embed = message.embeds.find((embed) => embed.author?.name === ADDED_TO_QUEUE_AUTHOR);
+    const markdownLink = embed.description.replace(/(^\*\*)|(\*\*$)/g, "");
+    const position = embed.fields.find((field) => field.name === "Position in queue")?.value ?? '?';
+    const timeLeft = embed.fields.find((field) => field.name === "Estimated time until playing")?.value ?? '?';
+    const description = `**Queued** ${markdownLink} at position ${position}. Plays in ${timeLeft}.`;
+    await handlePruning(message, getGuild(message), description);
+};
+
+const handlePruning = async (message: Message, guild: string, embedDescription: string): Promise<void> => {
     const prune = await SettingsController.getPrune(guild);
-    if (prune === PruneOption.ON) {
+    if (prune !== PruneOption.OFF) {
         try {
             Log.info("Deleting Rythm announcement");
             await message.delete();
+            if (prune === PruneOption.REPLACE) {
+                const embed = new MessageEmbed().setDescription(embedDescription);
+                await message.channel.send(embed);
+            }
         } catch (err) {
             Log.error("Could not delete Rythm announcement");
             await message.channel.send("Warning: pruning has been enabled, yet Blues lacks the permissions to do so");
@@ -151,5 +171,7 @@ const isAnnouncementsOnAnnouncement = createContentAnnouncementChecker(ANNOUNCEM
 const isAnnouncementsOffAnnouncement = createContentAnnouncementChecker(ANNOUNCEMENTS_OFF);
 const isNowPlayingAnnouncement = (message: Message): boolean =>
     !!message.embeds.find((embed: MessageEmbed) => embed.title === NOW_PLAYING_TITLE);
+const isSongQueuedAnnouncement = (message: Message): boolean =>
+    !!message.embeds.find((embed: MessageEmbed) => embed.author?.name === ADDED_TO_QUEUE_AUTHOR);
 
 export default {isRythmEvent, handleEvent};

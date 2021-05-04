@@ -1,6 +1,5 @@
 import {ConfigKey, getConfig} from "../util/Config";
 import {MuteConfig, MuteOption, PruneOption, Setting} from "../Types";
-import {isMuteConfig, isPruneOption} from "../util/Util";
 import {getDatabaseAdapter} from "../adapters/database/DatabaseAdapter";
 
 const DEFAULT_PREFIX = String(getConfig(ConfigKey.defaultPrefix));
@@ -56,16 +55,10 @@ const setPrefix = (guild: string, newPrefix: string): Promise<void> => {
 };
 
 const getMute = (guild: string): Promise<MuteConfig> => getSetting(guild, Setting.MUTE, DEFAULT_MUTE);
-const setMute = (guild: string, newOption: MuteConfig): Promise<void> => {
-    assert(isMuteConfig(newOption), `Mute must be set to '${MuteOption.ON}', '${MuteOption.OFF}', or '${MuteOption.WARN}'`);
-    return setSetting(guild, Setting.MUTE, newOption);
-};
+const setMute = (guild: string, newOption: MuteConfig): Promise<void> => setSetting(guild, Setting.MUTE, newOption);
 
 const getPrune = (guild: string): Promise<string> => getSetting(guild, Setting.PRUNE, DEFAULT_PRUNE);
-const setPrune = (guild: string, prune: string): Promise<void> => {
-    assert(isPruneOption(prune), `Prune must be set to '${PruneOption.ON}' or '${PruneOption.OFF}'`);
-    return setSetting(guild, Setting.PRUNE, prune);
-};
+const setPrune = (guild: string, prune: PruneOption): Promise<void> => setSetting(guild, Setting.PRUNE, prune);
 
 const getBot = (guild: string): Promise<string> => getSetting(guild, Setting.BOT, DEFAULT_BOT);
 const setBot = (guild: string, bot: string): Promise<void> => setSetting(guild, Setting.BOT, bot);

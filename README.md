@@ -2,9 +2,11 @@
 A companion to the Discord [Rythm](https://rythm.fm/) Bot
 
 ## About
+Blues was created by [Ashley Kobayashi](https://github.com/kobayashley) and [Braxton Hall](https://github.com/braxtonhall).
 
 ## Commands
 In all examples below, the prefix has been set to `$`
+
 ###`$help <commandName>?`
 Displays the list of commands.
 Optionally adding a command name

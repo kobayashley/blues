@@ -129,16 +129,16 @@ const setSetting = async <T>(guild: string, setting: Setting, value: T): Promise
     return promisifyNeDB<void>(collection.update.bind(collection))({guild}, config, {upsert: true});
 };
 
-const getRefreshToken = async (): Promise<string> => {
+const getRefreshToken = async (source: Source): Promise<string> => {
     const collection = getCollection(Entity.REFRESH_TOKEN);
-    const query = {};
+    const query = {source};
     const document = await promisifyNeDB<{refresh: string}>(collection.findOne.bind(collection))(query);
     return document?.refresh ?? null;
 };
 
-const setRefreshToken = (refresh: string): Promise<void> => {
+const setRefreshToken = (source: Source, refresh: string): Promise<void> => {
     const collection = getCollection(Entity.REFRESH_TOKEN);
-    return promisifyNeDB<void>(collection.update.bind(collection))({}, {refresh}, {upsert: true});
+    return promisifyNeDB<void>(collection.update.bind(collection))({source}, {refresh, source}, {upsert: true});
 };
 
 export const NeDBAdapter: DatabaseAdapter = {

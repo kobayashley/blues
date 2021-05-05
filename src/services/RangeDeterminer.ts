@@ -6,10 +6,15 @@ import {Range} from "../Types";
 const DISCORD_PREFIX = "https://discord.com/channels/";
 
 const determineRange = async (client: Client, message: Message, args: string[], defaultRange: Range): Promise<Range> => {
-    const futureStart = determineStart(client, message, args, defaultRange.start);
-    const futureEnd = determineEnd(client, message, args, defaultRange.end);
-    const [start, end] = await Promise.all([futureStart, futureEnd]);
-    return {start, end};
+    try {
+        const futureStart = determineStart(client, message, args, defaultRange.start);
+        const futureEnd = determineEnd(client, message, args, defaultRange.end);
+        const [start, end] = await Promise.all([futureStart, futureEnd]);
+        return {start, end};
+    } catch (err) {
+        Log.error("Error determining range:", err);
+        throw new Error("I could not get the time range right. Do I have permission to view messages?");
+    }
 };
 
 const determineStart = async (client:Client, message: Message, args: string[], defaultStart: number): Promise<number> => {

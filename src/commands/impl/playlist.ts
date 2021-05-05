@@ -4,7 +4,7 @@ import PlaylistController from "../../controllers/PlaylistController";
 import {getGuild, isSource} from "../../util/Util";
 import {getDatabaseAdapter} from "../../adapters/database/DatabaseAdapter";
 import Log from "../../util/Log";
-import {Range, Source} from "../../Types";
+import {Song, Source} from "../../Types";
 import RangeDeterminer from "../../services/RangeDeterminer";
 
 const database = getDatabaseAdapter();
@@ -22,17 +22,19 @@ const playlist: CommandBinder = (client: Client) => ({
                 return message.channel.send(`${source} is not supported`);
             }
             const defaultRange = {start: dayStart, end: now};
-            const range = await RangeDeterminer.determineRange(client, message, remainingArgs, defaultRange);
-            const existingPlaylist = await database.getPlaylist(getGuild(message), source, range);
+            const requestRange = await RangeDeterminer.determineRange(client, message, remainingArgs, defaultRange);
+            await message.channel.send(`Creating a new ${source} playlist...`);
+            const songs = await database.getSongsBetween(getGuild(message), requestRange.start, requestRange.end);
+            const playlistRange = PlaylistController.getPlaylistRange(songs);
+            const existingPlaylist = await database.getPlaylist(getGuild(message), source, playlistRange);
             if (existingPlaylist) {
                 const {name, link} = existingPlaylist;
                 await sendPlaylistEmbed(name, link, message, "Playlist already existed");
             } else {
-                await createPlaylist(source, message, range);
+                await createPlaylist(source, message, songs);
             }
         } catch (err) {
-            Log.error("Failed to create a playlist", err);
-            return message.channel.send("Failed to create this playlist. If you included links, do I have permission to view them?");
+            return message.channel.send(`Failed to create this playlist! ${err.message}`);
         }
     },
 });
@@ -48,16 +50,19 @@ const determineSource = (args: string[]): { source: Source, remainingArgs: strin
 const isSupportedSource = (source: Source): boolean =>
     source === Source.YOUTUBE || source === Source.SPOTIFY;
 
-const createPlaylist = async (source: Source, message: Message, range: Range): Promise<void> => {
-    await message.channel.send(`Creating a new ${source} playlist...`);
-    const songs = await database.getSongsBetween(getGuild(message), range.start, range.end);
+const createPlaylist = async (source: Source, message: Message, songs: Song[]): Promise<void> => {
     if (songs.length > 0) {
-        const playlist = await PlaylistController.createPlaylist(songs, source);
-        await database.addPlaylist(getGuild(message), playlist);
-        const {name, link} = playlist;
-        await sendPlaylistEmbed(name, link, message, "Playlist created successfully");
+        try {
+            const playlist = await PlaylistController.createPlaylist(songs, source);
+            await database.addPlaylist(getGuild(message), playlist);
+            const {name, link} = playlist;
+            await sendPlaylistEmbed(name, link, message, "Playlist created successfully");
+        } catch (err) {
+            Log.error("Failed to create playlist.", err);
+            throw new Error(`Issue communicating with ${source}`);
+        }
     } else {
-        await message.channel.send("There are no songs to add to a playlist");
+        throw new Error("There are no songs to add to a playlist");
     }
 };
 

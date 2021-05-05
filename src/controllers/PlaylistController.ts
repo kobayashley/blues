@@ -35,7 +35,7 @@ const createName = (songs: Song[]): string => {
 };
 
 const getPlaylistRange = (songs: Song[]): Range =>
-    ({start: songs[0].time, end: songs[songs.length - 1].time + songs.length});
+    ({start: songs[0]?.time ?? 0, end: (songs[songs.length - 1]?.time ?? 0) + (songs?.length ?? 0)});
 
 const selectBestSearchResult = (originalSong: Song, songLinks: SearchResult[]): SearchResult => {
     // TODO implement stub
@@ -43,4 +43,4 @@ const selectBestSearchResult = (originalSong: Song, songLinks: SearchResult[]): 
     return songLinks[0];
 };
 
-export default {createPlaylist};
+export default {createPlaylist, getPlaylistRange};

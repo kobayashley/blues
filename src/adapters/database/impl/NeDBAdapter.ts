@@ -76,12 +76,12 @@ const skipSong = (guild: string, song: Song): Promise<void> => {
 };
 
 const getSongsBetween = async (guild: string, from: number, until: number): Promise<Song[]> => {
-    const query = {guild, $and:[{time: {$gt: from}}, {time: {$lt: until}}]};
+    const query = {guild, $and:[{time: {$gt: from}}, {time: {$lt: until}}], skipped: false};
     const cursor = getCollection(Entity.SONGS).find(query).sort({time: 1});
     const documents = await promisifyNeDB<DBSong[]>(cursor.exec.bind(cursor))();
     const songs: Song[] = documents.map((song): Song => {
-        const {name, link, length, source, requester, skipped} = song;
-        return {name, link, length, source, requester, skipped};
+        const {name, link, length, source, requester, skipped, time} = song;
+        return {name, link, length, source, requester, skipped, time};
     });
     Log.info(`Retrieved ${documents.length} songs for guild ${guild}`);
     return songs;

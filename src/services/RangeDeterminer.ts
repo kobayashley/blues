@@ -8,8 +8,8 @@ const DISCORD_PREFIX = "https://discord.com/channels/";
 const determineRange = async (client: Client, message: Message, args: string[], defaultRange: Range): Promise<Range> => {
     const futureStart = determineStart(client, message, args, defaultRange.start);
     const futureEnd = determineEnd(client, message, args, defaultRange.end);
-    // const [start, end] = await Promise.all([futureStart, futureEnd]);
-    return {start: await futureStart, end: await futureEnd};
+    const [start, end] = await Promise.all([futureStart, futureEnd]);
+    return {start, end};
 };
 
 const determineStart = async (client:Client, message: Message, args: string[], defaultStart: number): Promise<number> => {

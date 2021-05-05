@@ -7,7 +7,7 @@ import {getGuild, isMuteOption} from "../../util/Util";
 const mute: CommandBinder = () => ({
     name: "mute",
     description: "Turn on automatic muting when in voice with Rythm",
-    usage: `mute <setting = ${MuteOption.OFF} | ${MuteOption.WARN} | ${MuteOption.ON}> <channel (opt)>`,
+    usage: `mute <setting = ${MuteOption.OFF} | ${MuteOption.WARN} | ${MuteOption.ON}> <channel>?`,
     procedure: async (message: Message, args: string[]) => {
         const [arg] = args;
         if (isMuteOption(arg)) {

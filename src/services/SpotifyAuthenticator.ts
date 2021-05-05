@@ -36,4 +36,3 @@ const init = async (): Promise<void> => {
 };
 
 export default {init};
-

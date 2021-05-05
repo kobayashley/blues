@@ -21,7 +21,7 @@ const client = new SpotifyWebApi({
 });
 
 const scope = ["playlist-modify-private"];
-const state = "foo-bar-baz";
+const state = String(Date.now());
 
 const authorizeUrl = client.createAuthorizeURL(scope, state);
 

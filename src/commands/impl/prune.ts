@@ -8,7 +8,7 @@ import {PruneOption} from "../../Types";
 const prune: CommandBinder = (client: Client) => ({
     name: "prune",
     description: "Turn on automatic song announcement deletion",
-    usage: `mute <setting = ${PruneOption.ON} | ${PruneOption.OFF} | ${PruneOption.REPLACE}>`,
+    usage: `prune <setting = ${PruneOption.ON} | ${PruneOption.OFF} | ${PruneOption.REPLACE}>`,
     procedure: async (message: Message, args: string[]) => {
         const [arg] = args;
         if (!isPruneOption(arg)) {

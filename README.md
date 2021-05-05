@@ -129,7 +129,8 @@ TBD
 - **`yarn lint`**: Lints the `src/` files.
 - **`yarn build`**: Compiles the `.ts` files to `.js` files in the `dist/` dir.
 - **`yarn watch`**: Runs the bot and restarts it if any files are changed.
-- **`yarn authenticate`**: Launches the authentication server and authenticates Blues with YouTube. This must be done at least once at the start of development.
+- **`yarn authenticate-youtube`**: Launches the authentication server and authenticates Blues with YouTube.
+- **`yarn authenticate-spotify`**: Launches the authentication server and authenticates Blues with Spotify.
 
 ### Running Blues
 #### With Docker

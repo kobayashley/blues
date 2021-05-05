@@ -3,7 +3,7 @@ import {Client} from "discord.js";
 import {registerListeners} from "./listeners/RegisterListeners";
 import {registerCommands} from "./commands/CommandUtil";
 import Log from "./util/Log";
-import AuthenticatorService from "./services/AuthenticatorService";
+import AuthenticatorService from "./services/Authenticator";
 
 const main = async () => {
     try {

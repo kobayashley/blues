@@ -54,3 +54,5 @@ export enum PruneOption {
     OFF = "off",
     REPLACE = "replace",
 }
+
+export type Range = {start: number, end: number};

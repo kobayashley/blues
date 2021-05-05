@@ -7,7 +7,7 @@ import {getGuild} from "../../util/Util";
 const help: CommandBinder = () => ({
     name: "help",
     description: "Displays list of commands",
-    usage: "help <commandName (opt)>",
+    usage: "help <commandName>?",
     procedure: async (message: Message, args: string[]) => {
         const [arg] = args;
         const prefix = await PrefixController.getPrefix(getGuild(message));

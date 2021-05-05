@@ -1,5 +1,5 @@
 import fs from "fs";
-import {MuteConfig, MuteOption, PruneOption} from "../Types";
+import {MuteConfig, MuteOption, PruneOption, Source} from "../Types";
 import {Message} from "discord.js";
 
 const batchImport = (directory: string): Promise<any[]> => {
@@ -9,6 +9,9 @@ const batchImport = (directory: string): Promise<any[]> => {
         .map((file) => import(`${directory}/${file}`));
     return Promise.all(futureImportedFiles);
 };
+
+const isSource = (maybeSource: any): maybeSource is Source =>
+    Object.values(Source).includes(maybeSource);
 
 const isMuteOption = (maybeMuteOption: any): maybeMuteOption is MuteOption =>
     Object.values(MuteOption).includes(maybeMuteOption);
@@ -22,4 +25,4 @@ const isPruneOption = (maybePruneOption: any): maybePruneOption is PruneOption =
 
 const getGuild = (message: Message): string => message.guild?.id ?? "";
 
-export {batchImport, isMuteOption, isPruneOption, isMuteConfig, getGuild};
+export {batchImport, isSource, isMuteOption, isPruneOption, isMuteConfig, getGuild};

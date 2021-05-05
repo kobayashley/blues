@@ -96,10 +96,12 @@ const addPlaylist = (guild: string, playlist: Playlist): Promise<void> => {
 
 const getPlaylist = async (guild: string, source: Source, range: Range): Promise<Playlist> => {
     const query = {guild, source, range};
-    const collection = getCollection(Entity.PLAYLISTS);
-    const document = await promisifyNeDB<DBPlaylist>(collection.findOne.bind(collection))(query);
-    document && delete document._id;
-    return document;
+    const cursor = getCollection(Entity.PLAYLISTS).find(query).sort({time: -1}).limit(1);
+    const documents = await promisifyNeDB<DBPlaylist[]>(cursor.exec.bind(cursor))();
+    const [playlist] = documents;
+    playlist && delete playlist._id;
+    Log.debug(`Retrieved playlist:`, playlist);
+    return playlist;
 };
 
 const listPlaylists = async (guild: string): Promise<Playlist[]> => {

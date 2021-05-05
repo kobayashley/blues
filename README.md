@@ -7,7 +7,7 @@ Blues was created by [Ashley Kobayashi](https://github.com/kobayashley) and [Bra
 ## Commands
 In all examples below, the prefix has been set to `$`
 
-###`$help <commandName>?`
+### `$help <commandName>?`
 Displays the list of commands.
 Optionally adding a command name
 will make Blues respond with details about the named command.

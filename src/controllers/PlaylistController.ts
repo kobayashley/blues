@@ -3,7 +3,7 @@ import {getPlatformAdapter} from "../adapters/platforms/PlatformAdapterFactory";
 import Log from "../util/Log";
 import moment from "moment";
 
-const createPlaylist = async (songs: Song[], source: Source): Promise<Playlist> => {
+const createPlaylist = async (songs: Song[], source: Source, requester: string): Promise<Playlist> => {
     const platformAdapter = getPlatformAdapter(source);
     const name = createName(songs);
     const playlistLink = await platformAdapter.createPlaylist(name);
@@ -19,7 +19,7 @@ const createPlaylist = async (songs: Song[], source: Source): Promise<Playlist> 
         }
     }
     const range = getPlaylistRange(songs);
-    return {link: playlistLink, name, source, range};
+    return {link: playlistLink, name, source, range, requester};
 };
 
 const createName = (songs: Song[]): string => {

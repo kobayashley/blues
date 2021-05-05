@@ -53,7 +53,7 @@ const isSupportedSource = (source: Source): boolean =>
 const createPlaylist = async (source: Source, message: Message, songs: Song[]): Promise<void> => {
     if (songs.length > 0) {
         try {
-            const playlist = await PlaylistController.createPlaylist(songs, source);
+            const playlist = await PlaylistController.createPlaylist(songs, source, message.author.username);
             await database.addPlaylist(getGuild(message), playlist);
             const {name, link} = playlist;
             await sendPlaylistEmbed(name, link, message, "Playlist created successfully");

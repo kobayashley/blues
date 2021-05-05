@@ -107,8 +107,8 @@ const listPlaylists = async (guild: string): Promise<Playlist[]> => {
     const cursor = getCollection(Entity.PLAYLISTS).find(query).sort({time: 1});
     const documents = await promisifyNeDB<DBPlaylist[]>(cursor.exec.bind(cursor))();
     const playlists: Playlist[] = documents.map((playlist): Playlist => {
-        const {name, link, source, range} = playlist;
-        return {name, link, source, range};
+        const {name, link, source, range, requester} = playlist;
+        return {name, link, source, range, requester};
     });
     Log.info(`Retrieved ${documents.length} playlists for guild ${guild}`);
     return playlists;

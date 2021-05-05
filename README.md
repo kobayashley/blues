@@ -34,7 +34,7 @@ Example:
 $mute warn #bot-spam
 ```
 
-### `$playlist <source>? (<year> <month> <day> | (<startMessage> <endMessage>?))?`
+### `$playlist <source>? (<year> <month> <day> | (<startMessage> <endMessage>?))? <force>?`
 ```
 <source>       ::= youtube | spotify
 <year>         ::= <number>
@@ -42,6 +42,7 @@ $mute warn #bot-spam
 <day>          ::= <number>
 <startMessage> ::= <discordMessageLink>
 <endMessage>   ::= <discordMessageLink>
+<force>        ::= force
 ```
 Creates a YouTube playlist from music played by Rythm.
 

@@ -9,25 +9,27 @@ import RangeDeterminer from "../../services/RangeDeterminer";
 
 const database = getDatabaseAdapter();
 
+const FORCE_FLAG = "force";
+
 const playlist: CommandBinder = (client: Client) => ({
     name: "playlist",
     description: "Creates a YouTube playlist from music played by Rythm",
-    usage: `playlist <source = ${Source.YOUTUBE} | ${Source.SPOTIFY}>? (<year> <month> <day> | (<startMessage> <endMessage>?))?`,
-    procedure: async (message: Message, args: string[]) => {
+    usage: `playlist <source = ${Source.YOUTUBE} | ${Source.SPOTIFY}>? (<year> <month> <day> | (<startMessage> <endMessage>?))? <force = force>?`,
+    procedure: async (message: Message, starterArgs: string[]) => {
         const now = Date.now();
         const dayStart = new Date(now).setHours(0, 0, 0);
         try {
-            const {source, remainingArgs} = determineSource(args);
+            const {source, args, force} = parseArgs(starterArgs);
             if (!isSupportedSource(source)) {
                 return message.channel.send(`${source} is not supported`);
             }
             const defaultRange = {start: dayStart, end: now};
-            const requestRange = await RangeDeterminer.determineRange(client, message, remainingArgs, defaultRange);
+            const requestRange = await RangeDeterminer.determineRange(client, message, args, defaultRange);
             await message.channel.send(`Creating a new ${source} playlist...`);
             const songs = await database.getSongsBetween(getGuild(message), requestRange.start, requestRange.end);
             const playlistRange = PlaylistController.getPlaylistRange(songs);
             const existingPlaylist = await database.getPlaylist(getGuild(message), source, playlistRange);
-            if (existingPlaylist) {
+            if (existingPlaylist && force === false) {
                 const {name, link} = existingPlaylist;
                 await sendPlaylistEmbed(name, link, message, "Playlist already existed");
             } else {
@@ -39,12 +41,22 @@ const playlist: CommandBinder = (client: Client) => ({
     },
 });
 
-const determineSource = (args: string[]): { source: Source, remainingArgs: string[] } => {
+const parseArgs = (args: string[]): {source: Source, args: string[], force: boolean} => {
+    let source;
+    let force;
     if (isSource(args[0])) {
-        return {source: args[0], remainingArgs: args.slice(1)};
+        source = args[0];
+        args = args.slice(1);
     } else {
-        return {source: Source.YOUTUBE, remainingArgs: args};
+        source = Source.YOUTUBE;
     }
+    if (args[args.length - 1] === FORCE_FLAG) {
+        force = true;
+        args.pop();
+    } else {
+        force = false;
+    }
+    return {source, force, args};
 };
 
 const isSupportedSource = (source: Source): boolean =>

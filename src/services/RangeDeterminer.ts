@@ -8,20 +8,23 @@ const DISCORD_PREFIX = "https://discord.com/channels/";
 const determineRange = async (client: Client, message: Message, args: string[], defaultRange: Range): Promise<Range> => {
     const futureStart = determineStart(client, message, args, defaultRange.start);
     const futureEnd = determineEnd(client, message, args, defaultRange.end);
-    const [start, end] = await Promise.all([futureStart, futureEnd]);
-    return {start, end};
+    // const [start, end] = await Promise.all([futureStart, futureEnd]);
+    return {start: await futureStart, end: await futureEnd};
 };
 
 const determineStart = async (client:Client, message: Message, args: string[], defaultStart: number): Promise<number> => {
     if (message.reference) {
         // if it's a reply --> use that time
-        const {guildID, messageID, channelID} = message.reference;
-        return getMessageTimestampFromIDs(client, guildID, messageID, channelID);
+        Log.debug("Determining start based on a reference");
+        const {guildID, channelID, messageID} = message.reference;
+        return getMessageTimestampFromIDs(client, guildID, channelID, messageID);
     } else if (args[0]?.startsWith(DISCORD_PREFIX)) {
         // if it contains a discord link --> use that time
+        Log.debug("Determining start based on a link");
         return getMessageTimestampFromLink(client, args[0]);
     } else {
         // join the remainder of arguments and try moment on them
+        Log.debug("Determining start based on date string");
         return getTimeFromDateString(args.join(" "), "start") ?? defaultStart;
     }
 };
@@ -29,12 +32,15 @@ const determineStart = async (client:Client, message: Message, args: string[], d
 const determineEnd = async (client: Client, message: Message, args: string[], defaultEnd: number): Promise<number> => {
     if (message.reference && args[0]?.startsWith(DISCORD_PREFIX)) {
         // if it's a reply && contains discord link --> use discord link
+        Log.debug("Determining end based on first link");
         return getMessageTimestampFromLink(client, args[0]);
     } else if (args[0]?.startsWith(DISCORD_PREFIX) && args[1]?.startsWith(DISCORD_PREFIX)) {
         // if contains two discord links --> use second discord link
+        Log.debug("Determining end based on second link");
         return getMessageTimestampFromLink(client, args[1]);
     } else {
         // join the remainder of arguments and try moment on them
+        Log.debug("Determining end based on date string");
         return getTimeFromDateString(args.join(" "), "end") ?? defaultEnd;
     }
 };
@@ -60,6 +66,7 @@ const getMessageTimestampFromLink = (client: Client, link: string): Promise<numb
 
 const getMessageTimestampFromIDs = async (client: Client, guildId: string, channelId: string, messageId: string): Promise<number> => {
     try {
+        Log.debug("Guild", guildId, "channel", channelId, "message", messageId);
         const guild = await client.guilds.fetch(guildId);
         const channel = guild.channels.resolve(channelId);
         if (channel.isText()) {

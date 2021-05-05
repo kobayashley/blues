@@ -40,13 +40,13 @@ const determineSource = (args: string[]): {source: Source, remainingArgs: string
 };
 
 const isSupportedSource = (source: Source): boolean =>
-    source === Source.YOUTUBE;
+    source === Source.YOUTUBE || source === Source.SPOTIFY;
 
 const createPlaylist = async (source: Source, message: Message, range: Range): Promise<void> => {
     await message.channel.send(`Creating a new ${source} playlist...`);
     const songs = await database.getSongsBetween(getGuild(message), range.start, range.end);
     if (songs.length > 0) {
-        const playlist = await PlaylistController.createPlaylist(songs, Source.YOUTUBE);
+        const playlist = await PlaylistController.createPlaylist(songs, source);
         await  database.addPlaylist(getGuild(message), playlist);
         const {name, link} = playlist;
         const embed = createPlaylistEmbed(name, link);

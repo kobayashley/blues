@@ -4,6 +4,9 @@ import {google, youtube_v3} from "googleapis";
 import Log from "../../../util/Log";
 import moment from "moment";
 
+const VIDEO_LINK_REPLACEMENT = "https://www.youtube.com/watch?v=";
+const PLAYLIST_LINK_REPLACEMENT = "https://youtube.com/playlist?list=";
+
 const youtube = google.youtube("v3");
 
 const search = async (query: string): Promise<SearchResult[]> => {
@@ -46,7 +49,7 @@ const createPlaylist = async (name: string): Promise<string> => {
             }
         }
     });
-    return `https://youtube.com/playlist?list=${response.data.id}`;
+    return `${PLAYLIST_LINK_REPLACEMENT}${response.data.id}`;
 };
 
 const addToPlaylist = async (playlistLink: string, songLink: string): Promise<void> => {
@@ -56,10 +59,10 @@ const addToPlaylist = async (playlistLink: string, songLink: string): Promise<vo
         ],
         requestBody: {
             snippet: {
-                playlistId: playlistLink.replace("https://youtube.com/playlist?list=", ""),
+                playlistId: playlistLink.replace(PLAYLIST_LINK_REPLACEMENT, ""),
                 resourceId: {
                     kind: "youtube#video",
-                    videoId: songLink.replace("https://www.youtube.com/watch?v=", ""),
+                    videoId: songLink.replace(VIDEO_LINK_REPLACEMENT, ""),
                 }
             }
         }

@@ -5,8 +5,9 @@ import open from "open";
 import express from "express";
 import {Request, Response} from "express-serve-static-core";
 import Log from "../src/util/Log";
+import {Source} from "../src/Types";
 
-// To run this script, use `yarn bin authenticate.ts`
+// To run this script, use `yarn authenticate-youtube`
 // Adapted from https://github.com/googleapis/nodejs-local-auth
 // In future may wish to use that package instead
 
@@ -30,7 +31,7 @@ app.get(new URL(redirectUri).pathname, async (req: Request, res: Response) => {
     const {searchParams} = new URL(req.url, redirectUri.toString());
     const clientToken = searchParams.get("code");
     const {tokens} = await client.getToken(clientToken);
-    await getDatabaseAdapter().setRefreshToken(tokens.refresh_token);
+    await getDatabaseAdapter().setRefreshToken(Source.YOUTUBE, tokens.refresh_token);
     Log.info("Acquired new refresh token. Closing server");
     res.send("Success! You may close this tab.");
     server.close(() => {

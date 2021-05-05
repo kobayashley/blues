@@ -1,20 +1,18 @@
 import {CommandBinder} from "../Command";
-import {Message, MessageEmbed} from "discord.js";
+import {Client, Message, MessageEmbed} from "discord.js";
 import PlaylistController from "../../controllers/PlaylistController";
 import {getGuild, isSource} from "../../util/Util";
 import {getDatabaseAdapter} from "../../adapters/database/DatabaseAdapter";
 import Log from "../../util/Log";
-import {Source} from "../../Types";
+import {Range, Source} from "../../Types";
+import RangeDeterminer from "../../services/RangeDeterminer";
 
 const database = getDatabaseAdapter();
 
-type Range = {start: number, end: number};
-
-// TODO future: (<date> | (<startMessage> <endMessage>))?
-const playlist: CommandBinder = () => ({
+const playlist: CommandBinder = (client: Client) => ({
     name: "playlist",
     description: "Creates a YouTube playlist from music played by Rythm",
-    usage: `playlist <source = ${Source.YOUTUBE} | ${Source.SPOTIFY}>?`,
+    usage: `playlist <source = ${Source.YOUTUBE} | ${Source.SPOTIFY}>? (<year> <month> <day> | (<startMessage> <endMessage>?))?`,
     procedure: async (message: Message, args: string[]) => {
         const now = Date.now();
         const dayStart = new Date(now).setHours(0, 0, 0);
@@ -23,12 +21,12 @@ const playlist: CommandBinder = () => ({
             if (!isSupportedSource(source)) {
                 return message.channel.send(`${source} is not supported`);
             }
-            const start = await determineStart(message, remainingArgs, dayStart);
-            const end = await determineEnd(message, remainingArgs, now);
-            await createPlaylist(source, message, {start, end});
+            const defaultRange = {start: dayStart, end: now};
+            const range = await RangeDeterminer.determineRange(client, message, remainingArgs, defaultRange);
+            await createPlaylist(source, message, range);
         } catch (err) {
             Log.error("Failed to create a playlist", err);
-            return message.channel.send("Failed to create this playlist.");
+            return message.channel.send("Failed to create this playlist. If you included links, do I have permission to view them?");
         }
     },
 });
@@ -39,14 +37,6 @@ const determineSource = (args: string[]): {source: Source, remainingArgs: string
     } else {
         return {source: Source.YOUTUBE, remainingArgs: args};
     }
-};
-
-const determineStart = async (message: Message, args: string[], defaultStart: number): Promise<number> => {
-    return defaultStart;
-};
-
-const determineEnd = async (message: Message, args: string[], defaultEnd: number): Promise<number> => {
-    return defaultEnd;
 };
 
 const isSupportedSource = (source: Source): boolean =>

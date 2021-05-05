@@ -16,6 +16,7 @@
     "@types/express": "^4.17.8",
     "@types/nedb": "^1.8.11",
     "@types/node": "^14.11.8",
+    "@types/spotify-web-api-node": "^5.0.2",
     "@typescript-eslint/eslint-plugin": "^4.4.1",
     "@typescript-eslint/parser": "^4.4.1",
     "eslint": "^7.11.0",
@@ -31,7 +32,8 @@
     "ts": "node --require ts-node/register",
     "start": "yarn ts src/App.ts",
     "watch": "nodemon",
-    "authenticate": "yarn ts bin/authenticate.ts"
+    "authenticate-youtube": "yarn ts bin/authenticate-youtube.ts",
+    "authenticate-spotify": "yarn ts bin/authenticate-spotify.ts"
   },
   "dependencies": {
     "axios": "^0.21.0",
@@ -41,7 +43,8 @@
     "google-auth-library": "^7.0.4",
     "googleapis": "^73.0.0",
     "moment": "^2.29.1",
-    "nedb": "^1.8.0"
+    "nedb": "^1.8.0",
+    "spotify-web-api-node": "^5.0.2"
   },
   "nodemonConfig": {
     "ignore": [

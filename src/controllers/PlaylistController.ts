@@ -1,12 +1,12 @@
-import {Playlist, SearchResult, Song, Source} from "../Types";
+import {Playlist, Range, SearchResult, Song, Source} from "../Types";
 import {getPlatformAdapter} from "../adapters/platforms/PlatformAdapterFactory";
 import Log from "../util/Log";
 import moment from "moment";
 
 const createPlaylist = async (songs: Song[], source: Source): Promise<Playlist> => {
     const platformAdapter = getPlatformAdapter(source);
-    const playlistName = createName(songs);
-    const playlistLink = await platformAdapter.createPlaylist(playlistName);
+    const name = createName(songs);
+    const playlistLink = await platformAdapter.createPlaylist(name);
     for (const song of songs) {
         if (song.source === source) {
             await platformAdapter.addToPlaylist(playlistLink, song.link);
@@ -18,7 +18,8 @@ const createPlaylist = async (songs: Song[], source: Source): Promise<Playlist> 
             }
         }
     }
-    return {name: playlistName, link: playlistLink, source: source};
+    const range = getPlaylistRange(songs);
+    return {link: playlistLink, name, source, range};
 };
 
 const createName = (songs: Song[]): string => {
@@ -32,6 +33,9 @@ const createName = (songs: Song[]): string => {
         return `${firstDate} - ${lastDate}`;
     }
 };
+
+const getPlaylistRange = (songs: Song[]): Range =>
+    ({start: songs[0].time, end: songs[songs.length - 1].time + songs.length});
 
 const selectBestSearchResult = (originalSong: Song, songLinks: SearchResult[]): SearchResult => {
     // TODO implement stub

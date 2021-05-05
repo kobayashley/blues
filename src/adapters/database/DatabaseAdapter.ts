@@ -1,4 +1,4 @@
-import {Playlist, Setting, Song} from "../../Types";
+import {Playlist, Range, Setting, Song, Source} from "../../Types";
 import {NeDBAdapter} from "./impl/NeDBAdapter";
 
 export interface DatabaseAdapter {
@@ -14,6 +14,7 @@ export interface DatabaseAdapter {
 
     // playlist
     addPlaylist(guild: string, playlist: Playlist): Promise<void>;
+    getPlaylist(guild: string, source: Source, range: Range): Promise<Playlist>;
     listPlaylists(guild: string): Promise<Playlist[]>;
 
     // auth

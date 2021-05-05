@@ -22,6 +22,7 @@ export interface Playlist {
     name: string;
     link: string;
     source: Source;
+    range: Range; // time the playlist covers
     time?: number; // time is was created
 }
 

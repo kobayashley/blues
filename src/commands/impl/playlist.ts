@@ -23,7 +23,13 @@ const playlist: CommandBinder = (client: Client) => ({
             }
             const defaultRange = {start: dayStart, end: now};
             const range = await RangeDeterminer.determineRange(client, message, remainingArgs, defaultRange);
-            await createPlaylist(source, message, range);
+            const existingPlaylist = await database.getPlaylist(getGuild(message), source, range);
+            if (existingPlaylist) {
+                const {name, link} = existingPlaylist;
+                await sendPlaylistEmbed(name, link, message, "Playlist already existed");
+            } else {
+                await createPlaylist(source, message, range);
+            }
         } catch (err) {
             Log.error("Failed to create a playlist", err);
             return message.channel.send("Failed to create this playlist. If you included links, do I have permission to view them?");
@@ -31,7 +37,7 @@ const playlist: CommandBinder = (client: Client) => ({
     },
 });
 
-const determineSource = (args: string[]): {source: Source, remainingArgs: string[]} => {
+const determineSource = (args: string[]): { source: Source, remainingArgs: string[] } => {
     if (isSource(args[0])) {
         return {source: args[0], remainingArgs: args.slice(1)};
     } else {
@@ -47,19 +53,18 @@ const createPlaylist = async (source: Source, message: Message, range: Range): P
     const songs = await database.getSongsBetween(getGuild(message), range.start, range.end);
     if (songs.length > 0) {
         const playlist = await PlaylistController.createPlaylist(songs, Source.YOUTUBE);
-        await  database.addPlaylist(getGuild(message), playlist);
+        await database.addPlaylist(getGuild(message), playlist);
         const {name, link} = playlist;
-        const embed = createPlaylistEmbed(name, link);
-        await message.channel.send(embed);
+        await sendPlaylistEmbed(name, link, message, "Playlist created successfully");
     } else {
         await message.channel.send("There are no songs to add to a playlist");
     }
 };
 
-const createPlaylistEmbed = (name: string, link: string): MessageEmbed =>
-    new MessageEmbed()
+const sendPlaylistEmbed = (name: string, link: string, message: Message, description: string): Promise<Message> =>
+    message.channel.send(new MessageEmbed()
         .setTitle(name)
         .setURL(link)
-        .setDescription("Playlist created successfully");
+        .setDescription(description));
 
 export default playlist;

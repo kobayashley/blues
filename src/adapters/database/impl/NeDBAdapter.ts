@@ -1,6 +1,6 @@
 import Datastore from "nedb";
 import {DatabaseAdapter} from "../DatabaseAdapter";
-import {Playlist, Setting, Song} from "../../../Types";
+import {Playlist, Range, Setting, Song, Source} from "../../../Types";
 import Log from "../../../util/Log";
 
 enum Entity {
@@ -22,7 +22,7 @@ interface DBSong extends Song {
     guild: string;
 }
 
-interface DBPlaylist extends Song {
+interface DBPlaylist extends Playlist {
     _id?: string;
     guild: string;
 }
@@ -94,13 +94,21 @@ const addPlaylist = (guild: string, playlist: Playlist): Promise<void> => {
     return promisifyNeDB<void>(playlistCollection.insert.bind(playlistCollection))({...playlist, time, guild});
 };
 
+const getPlaylist = async (guild: string, source: Source, range: Range): Promise<Playlist> => {
+    const query = {guild, source, range};
+    const collection = getCollection(Entity.PLAYLISTS);
+    const document = await promisifyNeDB<DBPlaylist>(collection.findOne.bind(collection))(query);
+    document && delete document._id;
+    return document;
+};
+
 const listPlaylists = async (guild: string): Promise<Playlist[]> => {
     const query = {guild};
     const cursor = getCollection(Entity.PLAYLISTS).find(query).sort({time: 1});
     const documents = await promisifyNeDB<DBPlaylist[]>(cursor.exec.bind(cursor))();
-    const playlists: Playlist[] = documents.map((song): Playlist => {
-        const {name, link, source} = song;
-        return {name, link, source};
+    const playlists: Playlist[] = documents.map((playlist): Playlist => {
+        const {name, link, source, range} = playlist;
+        return {name, link, source, range};
     });
     Log.info(`Retrieved ${documents.length} playlists for guild ${guild}`);
     return playlists;
@@ -141,6 +149,7 @@ export const NeDBAdapter: DatabaseAdapter = {
     getLatestSong,
     skipSong,
     addPlaylist,
+    getPlaylist,
     listPlaylists,
     getRefreshToken,
     setRefreshToken,

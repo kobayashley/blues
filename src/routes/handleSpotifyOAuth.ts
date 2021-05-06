@@ -17,7 +17,7 @@ const handleSpotifyOAuth = (client: Client) => async (req: Request, res: Respons
     const {access_token} = (await auth.authorizationCodeGrant(clientToken)).body;
     auth.setAccessToken(access_token);
     Log.info("Acquired Spotify token. Creating a playlist");
-    res.send("Success! You may close this tab.");
+    res.redirect(`/?${new URLSearchParams({options: JSON.stringify(options)}).toString()}`);
     return new PlaylistController(new SpotifyController(auth)).sendPlaylist(client, options);
 };
 

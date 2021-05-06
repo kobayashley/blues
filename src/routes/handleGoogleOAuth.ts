@@ -10,12 +10,13 @@ const handleGoogleOAuth = (client: Client) => async (req: Request, res: Response
     Log.info("Completing Google OAuth and Starting Playlist creation");
     const {searchParams} = new URL(req.url, String(getConfig(ConfigKey.googleOAuthCallback)));
     const clientToken = searchParams.get("code");
-    const options: PlaylistOptions = JSON.parse(searchParams.get("state"));
+    const stateString = searchParams.get("state");
+    const options: PlaylistOptions = JSON.parse(stateString);
     const auth = getYouTubeAuth();
     const {tokens} = await auth.getToken(clientToken);
     auth.setCredentials(tokens);
     Log.info("Acquired Google token. Creating a playlist");
-    res.send("Success! You may close this tab.");
+    res.redirect(`/?${new URLSearchParams({options: stateString}).toString()}`);
     return new PlaylistController(new YouTubeController(auth)).sendPlaylist(client, options);
 };
 

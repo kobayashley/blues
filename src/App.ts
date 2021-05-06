@@ -26,6 +26,7 @@ const startDiscord = async (): Promise<Client> => {
 const startServer = (client: Client) => {
     const port = getConfig(ConfigKey.port);
     const server = registerRoutes(express(), client);
+    server.use(express.static('public'));
     server.listen(port, () => Log.info(`Server started on port ${port}`));
 };
 

@@ -14,7 +14,7 @@ const FORCE_FLAG = "force";
 
 const playlist: CommandBinder = (client: Client) => ({
     name: "playlist",
-    description: "Creates a YouTube playlist from music played by Rythm",
+    description: "Creates a playlist from music played by Rythm",
     usage: `playlist <source = ${Source.YOUTUBE} | ${Source.SPOTIFY}>? (<year> <month> <day> | (<startMessage> <endMessage>?))? <force = force>?`,
     procedure: async (message: Message, starterArgs: string[]) => {
         const now = Date.now();

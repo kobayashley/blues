@@ -44,7 +44,7 @@ $mute warn #bot-spam
 <endMessage>   ::= <discordMessageLink>
 <force>        ::= force
 ```
-Creates a YouTube playlist from music played by Rythm.
+Creates a playlist from music played by Rythm.
 
 This playlist is made on YouTube by default, but Spotify can
 be used by specifying `spotify` in the command arguments.

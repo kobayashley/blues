@@ -7,13 +7,15 @@ export enum ConfigKey {
     defaultRythmId = "defaultRythmId",
     defaultPrefix = "defaultPrefix",
 
+    port = "port",
+
     googleClientId = "googleClientId",
     googleSecretKey = "googleSecretKey",
-    googleOauthCallback = "googleOathCallback",
+    googleOAuthCallback = "googleOathCallback",
 
     spotifyClientId = "spotifyClientId",
     spotifySecretKey = "spotifySecretKey",
-    spotifyOauthCallback = "spotifyOathCallback",
+    spotifyOAuthCallback = "spotifyOathCallback",
 }
 
 const config: {[key: string]: number | string | boolean} = {
@@ -21,13 +23,15 @@ const config: {[key: string]: number | string | boolean} = {
     [ConfigKey.defaultRythmId]:  process.env.RYTHM_ID,
     [ConfigKey.defaultPrefix]:   process.env.DEFAULT_PREFIX,
 
+    [ConfigKey.port]:              process.env.PORT,
+
     [ConfigKey.googleClientId]:      process.env.GOOGLE_CLIENT_ID,
     [ConfigKey.googleSecretKey]:     process.env.GOOGLE_CLIENT_SECRET,
-    [ConfigKey.googleOauthCallback]: process.env.GOOGLE_OAUTH2_CALLBACK,
+    [ConfigKey.googleOAuthCallback]: process.env.GOOGLE_OAUTH2_CALLBACK,
 
     [ConfigKey.spotifyClientId]:      process.env.SPOTIFY_CLIENT_ID,
     [ConfigKey.spotifySecretKey]:     process.env.SPOTIFY_CLIENT_SECRET,
-    [ConfigKey.spotifyOauthCallback]: process.env.SPOTIFY_OAUTH2_CALLBACK,
+    [ConfigKey.spotifyOAuthCallback]: process.env.SPOTIFY_OAUTH2_CALLBACK,
 };
 
 export const getConfig = (key: ConfigKey): number | string | boolean => {

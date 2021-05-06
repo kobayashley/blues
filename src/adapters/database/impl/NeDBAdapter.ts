@@ -6,7 +6,6 @@ import Log from "../../../util/Log";
 enum Entity {
     SONGS = "songs",
     PLAYLISTS = "playlists",
-    REFRESH_TOKEN = "token",
 }
 
 type Collection = Entity | Setting
@@ -94,8 +93,8 @@ const addPlaylist = (guild: string, playlist: Playlist): Promise<void> => {
     return promisifyNeDB<void>(playlistCollection.insert.bind(playlistCollection))({...playlist, time, guild});
 };
 
-const getPlaylist = async (guild: string, source: Source, range: Range): Promise<Playlist> => {
-    const query = {guild, source, range};
+const getPlaylist = async (guild: string, source: Source, range: Range, requester: string): Promise<Playlist> => {
+    const query = {guild, source, range, requester};
     const cursor = getCollection(Entity.PLAYLISTS).find(query).sort({time: -1}).limit(1);
     const documents = await promisifyNeDB<DBPlaylist[]>(cursor.exec.bind(cursor))();
     const [playlist] = documents;
@@ -131,18 +130,6 @@ const setSetting = async <T>(guild: string, setting: Setting, value: T): Promise
     return promisifyNeDB<void>(collection.update.bind(collection))({guild}, config, {upsert: true});
 };
 
-const getRefreshToken = async (source: Source): Promise<string> => {
-    const collection = getCollection(Entity.REFRESH_TOKEN);
-    const query = {source};
-    const document = await promisifyNeDB<{refresh: string}>(collection.findOne.bind(collection))(query);
-    return document?.refresh ?? null;
-};
-
-const setRefreshToken = (source: Source, refresh: string): Promise<void> => {
-    const collection = getCollection(Entity.REFRESH_TOKEN);
-    return promisifyNeDB<void>(collection.update.bind(collection))({source}, {refresh, source}, {upsert: true});
-};
-
 export const NeDBAdapter: DatabaseAdapter = {
     getSetting,
     setSetting,
@@ -153,6 +140,4 @@ export const NeDBAdapter: DatabaseAdapter = {
     addPlaylist,
     getPlaylist,
     listPlaylists,
-    getRefreshToken,
-    setRefreshToken,
 };

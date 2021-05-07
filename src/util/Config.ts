@@ -16,6 +16,8 @@ export enum ConfigKey {
     spotifyClientId = "spotifyClientId",
     spotifySecretKey = "spotifySecretKey",
     spotifyOAuthCallback = "spotifyOathCallback",
+
+    tokenLifeTime = "tokenLifeTime",
 }
 
 const config: {[key: string]: number | string | boolean} = {
@@ -23,7 +25,7 @@ const config: {[key: string]: number | string | boolean} = {
     [ConfigKey.defaultRythmId]:  process.env.RYTHM_ID,
     [ConfigKey.defaultPrefix]:   process.env.DEFAULT_PREFIX,
 
-    [ConfigKey.port]:              process.env.PORT,
+    [ConfigKey.port]:              Number(process.env.PORT),
 
     [ConfigKey.googleClientId]:      process.env.GOOGLE_CLIENT_ID,
     [ConfigKey.googleSecretKey]:     process.env.GOOGLE_CLIENT_SECRET,
@@ -32,6 +34,8 @@ const config: {[key: string]: number | string | boolean} = {
     [ConfigKey.spotifyClientId]:      process.env.SPOTIFY_CLIENT_ID,
     [ConfigKey.spotifySecretKey]:     process.env.SPOTIFY_CLIENT_SECRET,
     [ConfigKey.spotifyOAuthCallback]: process.env.SPOTIFY_OAUTH2_CALLBACK,
+
+    [ConfigKey.tokenLifeTime]: 5 * 60, // 5 minutes
 };
 
 export const getConfig = (key: ConfigKey): number | string | boolean => {

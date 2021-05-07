@@ -1,28 +1,26 @@
-import {Request, Response} from "express-serve-static-core";
 import Log from "../../util/Log";
-import {Client} from "discord.js";
 import {ConfigKey, getConfig} from "../../util/Config";
-import PlaylistController, {PlaylistOptions} from "../../controllers/PlaylistController";
+import PlaylistController from "../../controllers/PlaylistController";
 import {YouTubeController} from "../../controllers/platforms/impl/YouTubeController";
-import {getYouTubeAuth} from "../../services/Authorization";
+import {AuthorizationState, getYouTubeAuth} from "../../services/Authorization";
+import {MakePlaylist, ReadParams} from "./handleOAuth";
 
-const handleGoogleOAuth = (client: Client) => async (req: Request, res: Response): Promise<void> => {
-    try {
-        Log.info("Completing Google OAuth and Starting Playlist creation");
-        const {searchParams} = new URL(req.url, String(getConfig(ConfigKey.googleOAuthCallback)));
-        const clientToken = searchParams.get("code");
-        const stateString = searchParams.get("state");
-        const options: PlaylistOptions = JSON.parse(stateString);
-        const auth = getYouTubeAuth();
-        const {tokens} = await auth.getToken(clientToken);
-        auth.setCredentials(tokens);
-        Log.info("Acquired Google token. Creating a playlist");
-        res.render("playlist", {...options, title: "playlist"});
-        return new PlaylistController(new YouTubeController(auth)).sendPlaylist(client, options);
-    } catch (err) {
-        res.render("error");
-    }
-
+const readGoogleParams: ReadParams = (req) => {
+    Log.info("Completing Google OAuth and Starting Playlist creation");
+    const {searchParams} = new URL(req.url, String(getConfig(ConfigKey.googleOAuthCallback)));
+    const clientToken = searchParams.get("code");
+    const stateString = searchParams.get("state");
+    const options: AuthorizationState = JSON.parse(stateString);
+    return {options, clientToken};
 };
 
-export {handleGoogleOAuth};
+const makeYouTubePlaylist: MakePlaylist = async (res, client, options, clientToken) => {
+    const auth = getYouTubeAuth();
+    const {tokens} = await auth.getToken(clientToken);
+    auth.setCredentials(tokens);
+    Log.info("Acquired Google token. Creating a playlist");
+    res.render("playlist", {...options, title: "playlist"});
+    return new PlaylistController(new YouTubeController(auth)).sendPlaylist(client, options);
+};
+
+export {readGoogleParams, makeYouTubePlaylist};

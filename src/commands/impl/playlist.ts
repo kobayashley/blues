@@ -68,7 +68,7 @@ const sendAuthLink = async (source: Source, message: Message, songs: Song[], ran
         range,
         source,
     };
-    const authorizeUrl = getAuthURL(options);
+    const authorizeUrl = await getAuthURL(options);
     const embed = new MessageEmbed()
         .setTitle(`Click here to login to ${source}`)
         .setURL(authorizeUrl);

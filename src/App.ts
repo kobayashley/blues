@@ -4,7 +4,9 @@ import {registerListeners} from "./listeners/RegisterListeners";
 import {registerCommands} from "./commands/CommandUtil";
 import Log from "./util/Log";
 import express from "express";
-import {registerRoutes} from "./routes/registerRoutes";
+import {registerRoutes} from "./server/routes/registerRoutes";
+import {registerMiddlewares} from "./server/middlewares/registerMiddlewares";
+import {getServer} from "./server/getServer";
 
 const main = async () => {
     try {
@@ -25,8 +27,10 @@ const startDiscord = async (): Promise<Client> => {
 
 const startServer = (client: Client) => {
     const port = getConfig(ConfigKey.port);
-    const server = registerRoutes(express(), client);
-    server.listen(port, () => Log.info(`Server started on port ${port}`));
+    const server = getServer();
+    const withMiddlewares = registerMiddlewares(server);
+    const withRoutes = registerRoutes(withMiddlewares, client);
+    withRoutes.listen(port, () => Log.info(`Server started on port ${port}`));
 };
 
 main();

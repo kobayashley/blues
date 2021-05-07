@@ -1,6 +1,14 @@
 module.exports = {
   root: true,
   parser: '@typescript-eslint/parser',
+  overrides: [
+      {
+        files: ["public/js/*.js"],
+        env: {
+          browser: true,
+        }
+      }
+  ],
   plugins: [
     '@typescript-eslint',
   ],

@@ -16,6 +16,10 @@ export interface DatabaseAdapter {
     addPlaylist(guild: string, playlist: Playlist): Promise<void>;
     getPlaylist(guild: string, source: Source, range: Range, requester: string): Promise<Playlist>;
     listPlaylists(guild: string): Promise<Playlist[]>;
+
+    // tokens
+    addToken(token: string): Promise<void>;
+    hasToken(token: string): Promise<boolean>;
 }
 
 export const getDatabaseAdapter = (): DatabaseAdapter => NeDBAdapter;

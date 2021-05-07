@@ -2,6 +2,7 @@ import Datastore from "nedb";
 import {DatabaseAdapter} from "../DatabaseAdapter";
 import {Playlist, Range, Setting, Song, Source} from "../../../Types";
 import Log from "../../../util/Log";
+import {ConfigKey, getConfig} from "../../../util/Config";
 
 enum Entity {
     SONGS = "songs",
@@ -26,6 +27,12 @@ interface DBPlaylist extends Playlist {
     guild: string;
 }
 
+interface DBToken {
+    token: string;
+    createdAt: number; // in seconds
+}
+
+let tokenCollection; // treated differently than the others
 const collections: Map<Collection, Datastore> = new Map();
 
 const getCollection = (collection: Collection): Datastore => {
@@ -34,6 +41,19 @@ const getCollection = (collection: Collection): Datastore => {
         collections.set(collection, dataStore);
     }
     return collections.get(collection);
+};
+
+const getTokenCollection = async (): Promise<Datastore> => {
+    if (!tokenCollection) {
+        tokenCollection = new Datastore({
+            filename: `./db/tokens.db`,
+            autoload: true,
+            timestampData: true
+        });
+        const executor = promisifyNeDB(tokenCollection.ensureIndex.bind(tokenCollection));
+        await executor({ fieldName: 'createdAt', expireAfterSeconds: Number(getConfig(ConfigKey.tokenLifeTime))});
+    }
+    return tokenCollection;
 };
 
 const promisifyNeDB = <T>(fn: (...args: [...any[], (e, r: T) => void]) => void): (...args: any[]) => Promise<T> =>
@@ -119,7 +139,7 @@ const getSetting = async <T>(guild: string, setting: Setting): Promise<T> => {
     const prefixCollection = getCollection(setting);
     const query = {guild};
     const document = await promisifyNeDB<DBConfig<T>>(prefixCollection.findOne.bind(prefixCollection))(query);
-    Log.debug(`Retrieved ${setting} "${document.value}" for guild ${document.guild}`);
+    Log.debug(`Retrieved ${setting}`, document.value, `for guild ${document.guild}`);
     return document?.value ?? null;
 };
 
@@ -128,6 +148,19 @@ const setSetting = async <T>(guild: string, setting: Setting, value: T): Promise
     const config = {value, guild};
     const collection = getCollection(setting);
     return promisifyNeDB<void>(collection.update.bind(collection))({guild}, config, {upsert: true});
+};
+
+const addToken = async (token: string): Promise<void> => {
+    const tokenCollection = await getTokenCollection();
+    return promisifyNeDB<void>(tokenCollection.insert.bind(tokenCollection))({token});
+};
+
+const hasToken = async (token: string): Promise<boolean> => {
+    const tokenCollection = await getTokenCollection();
+    const cursor = tokenCollection.find({token});
+    const documents = await promisifyNeDB<DBToken[]>(cursor.exec.bind(cursor))();
+    const [savedToken] = documents;
+    return !!savedToken && savedToken.token === token;
 };
 
 export const NeDBAdapter: DatabaseAdapter = {
@@ -140,4 +173,6 @@ export const NeDBAdapter: DatabaseAdapter = {
     addPlaylist,
     getPlaylist,
     listPlaylists,
+    addToken,
+    hasToken,
 };

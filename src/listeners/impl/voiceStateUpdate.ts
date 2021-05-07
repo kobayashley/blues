@@ -14,7 +14,7 @@ const voiceStateUpdate: Listener<"voiceStateUpdate"> = {
             const bot = await SettingsController.getBot(guild);
             if (newVoiceState.id === bot) {
                 const futureMutes = newVoiceState.channel.members
-                    .filter((member) => shouldMute(member, bot))
+                    .filter(shouldMute(bot))
                     .map((member) => strategies[option](client, member.voice));
                 return Promise.all(futureMutes);
             } else if (!newVoiceState.mute) {
@@ -47,7 +47,7 @@ const performWarn = async (client: Client, voiceState: VoiceState, message = ", 
 
 const performNothing = (_: Client, voiceState: VoiceState) => Log.debug(`Not muting ${voiceState.member.displayName}`);
 
-const shouldMute = (member: GuildMember, botID: string): boolean =>
+const shouldMute = (botID: string) => (member: GuildMember): boolean =>
     member.id !== botID && member.voice.mute === false && member.hasPermission('SPEAK');
 
 const strategies: {[strategy: string]: MuteStrategy} = {

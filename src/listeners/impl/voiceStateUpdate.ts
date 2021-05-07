@@ -1,5 +1,5 @@
 import {Listener} from "../Listener";
-import {Client, VoiceState} from "discord.js";
+import {Client, GuildMember, VoiceState} from "discord.js";
 import Log from "../../util/Log";
 import SettingsController from "../../controllers/SettingsController";
 import {MuteOption} from "../../Types";
@@ -14,7 +14,7 @@ const voiceStateUpdate: Listener<"voiceStateUpdate"> = {
             const bot = await SettingsController.getBot(guild);
             if (newVoiceState.id === bot) {
                 const futureMutes = newVoiceState.channel.members
-                    .filter((member) => member.id !== bot && member.voice.mute === false)
+                    .filter(shouldMute(bot))
                     .map((member) => strategies[option](client, member.voice));
                 return Promise.all(futureMutes);
             } else if (!newVoiceState.mute) {
@@ -46,6 +46,9 @@ const performWarn = async (client: Client, voiceState: VoiceState, message = ", 
 };
 
 const performNothing = (_: Client, voiceState: VoiceState) => Log.debug(`Not muting ${voiceState.member.displayName}`);
+
+const shouldMute = (botID: string) => (member: GuildMember): boolean =>
+    member.id !== botID && member.voice.mute === false && member.hasPermission('SPEAK');
 
 const strategies: {[strategy: string]: MuteStrategy} = {
     [MuteOption.ON]: performMute,

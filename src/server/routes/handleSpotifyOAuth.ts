@@ -5,6 +5,8 @@ import {AuthorizationState, getSpotifyAuth} from "../../services/Authorization";
 import {SpotifyController} from "../../controllers/platforms/impl/SpotifyController";
 import {MakePlaylist, ReadParams} from "./handleOAuth";
 
+const prefix = getConfig(ConfigKey.pathPrefix);
+
 const readSpotifyParams: ReadParams = (req) => {
     Log.info("Completing Spotify OAuth and Starting Playlist creation");
     const {searchParams} = new URL(req.url, String(getConfig(ConfigKey.spotifyOAuthCallback)));
@@ -20,7 +22,7 @@ const makeSpotifyPlaylist: MakePlaylist = async (res, client, options, clientTok
     const {access_token} = (await auth.authorizationCodeGrant(clientToken)).body;
     auth.setAccessToken(access_token);
     Log.info("Acquired Spotify token. Creating a playlist");
-    res.render("playlist", {...options, title: "playlist"});
+    res.render("playlist", {...options, title: "playlist", prefix});
     return new PlaylistController(new SpotifyController(auth)).sendPlaylist(client, options);
 };
 

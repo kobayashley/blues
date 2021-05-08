@@ -16,7 +16,7 @@ WORKDIR /app
 
 COPY --from=BUILDER /tmp/dist ./dist
 COPY --from=BUILDER /tmp/node_modules ./node_modules
-COPY ./public ./
-COPY ./views  ./
+COPY ./public ./public
+COPY ./views  ./views
 
 CMD ["node", "dist/App.js"]

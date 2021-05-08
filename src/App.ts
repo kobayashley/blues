@@ -3,7 +3,6 @@ import {Client} from "discord.js";
 import {registerListeners} from "./listeners/RegisterListeners";
 import {registerCommands} from "./commands/CommandUtil";
 import Log from "./util/Log";
-import express from "express";
 import {registerRoutes} from "./server/routes/registerRoutes";
 import {registerMiddlewares} from "./server/middlewares/registerMiddlewares";
 import {getServer} from "./server/getServer";

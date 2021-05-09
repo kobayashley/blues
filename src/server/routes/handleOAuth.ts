@@ -4,8 +4,10 @@ import {Client} from "discord.js";
 import {AuthorizationState} from "../../services/Authorization";
 import {PlaylistOptions} from "../../controllers/PlaylistController";
 import Log from "../../util/Log";
+import {ConfigKey, getConfig} from "../../util/Config";
 
 const database = getDatabaseAdapter();
+const prefix = getConfig(ConfigKey.pathPrefix);
 
 const handleOAuth = (client: Client, readParams: ReadParams, makePlaylist: MakePlaylist) => async (req: Request, res: Response): Promise<void> => {
     try {
@@ -17,7 +19,7 @@ const handleOAuth = (client: Client, readParams: ReadParams, makePlaylist: MakeP
         }
     } catch (err) {
         Log.error("Problem handling OAuth", err);
-        res.render("error");
+        res.render("error", {prefix});
     }
 };
 

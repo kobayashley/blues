@@ -8,6 +8,7 @@ export enum ConfigKey {
     defaultPrefix = "defaultPrefix",
 
     port = "port",
+    pathPrefix = "pathPrefix",
 
     googleClientId = "googleClientId",
     googleSecretKey = "googleSecretKey",
@@ -26,6 +27,7 @@ const config: {[key: string]: number | string | boolean} = {
     [ConfigKey.defaultPrefix]:   process.env.DEFAULT_PREFIX,
 
     [ConfigKey.port]:              Number(process.env.PORT),
+    [ConfigKey.pathPrefix]:        process.env.PATH_PREFIX,
 
     [ConfigKey.googleClientId]:      process.env.GOOGLE_CLIENT_ID,
     [ConfigKey.googleSecretKey]:     process.env.GOOGLE_CLIENT_SECRET,

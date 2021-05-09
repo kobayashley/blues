@@ -5,6 +5,8 @@ import {YouTubeController} from "../../controllers/platforms/impl/YouTubeControl
 import {AuthorizationState, getYouTubeAuth} from "../../services/Authorization";
 import {MakePlaylist, ReadParams} from "./handleOAuth";
 
+const prefix = getConfig(ConfigKey.pathPrefix);
+
 const readGoogleParams: ReadParams = (req) => {
     Log.info("Completing Google OAuth and Starting Playlist creation");
     const {searchParams} = new URL(req.url, String(getConfig(ConfigKey.googleOAuthCallback)));
@@ -19,7 +21,7 @@ const makeYouTubePlaylist: MakePlaylist = async (res, client, options, clientTok
     const {tokens} = await auth.getToken(clientToken);
     auth.setCredentials(tokens);
     Log.info("Acquired Google token. Creating a playlist");
-    res.render("playlist", {...options, title: "playlist"});
+    res.render("playlist", {...options, title: "playlist", prefix});
     return new PlaylistController(new YouTubeController(auth)).sendPlaylist(client, options);
 };
 

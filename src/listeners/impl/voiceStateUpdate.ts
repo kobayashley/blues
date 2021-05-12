@@ -17,7 +17,7 @@ const voiceStateUpdate: Listener<"voiceStateUpdate"> = {
                     .filter(shouldMute(bot))
                     .map((member) => strategies[option](client, member.voice));
                 return Promise.all(futureMutes);
-            } else if (!newVoiceState.mute) {
+            } else if (shouldMute(bot)(newVoiceState.member)) {
                 if (newVoiceState.channel.members.has(bot)) {
                     await strategies[option](client, newVoiceState);
                 }

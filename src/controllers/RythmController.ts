@@ -10,6 +10,7 @@ const SKIPPED_MESSAGE = "⏩ ***Skipped*** 👍";
 const ANNOUNCEMENTS_OFF = "<:x2:814990341052432435> **I will no longer announce new songs**";
 const ANNOUNCEMENTS_ON = "✅ **I will now announce new songs**";
 const ADDED_TO_QUEUE_AUTHOR = "Added to queue";
+const DISCONNECTED_MESSAGE = "📭 **Successfully disconnected**";
 
 const database = getDatabaseAdapter();
 
@@ -24,12 +25,8 @@ const errorHandler = (error: unknown) =>
 const handleEvent = async (message: Message): Promise<void> => {
     if (isNowPlayingAnnouncement(message)) {
         await handleNowPlayingEvent(message);
-    } else if (isSongSkippedAnnouncement(message)) {
-        const guild = getGuild(message);
-        const song = await database.getLatestSong(guild);
-        if (song && !songStartedLongAgo(song)) {
-            await database.skipSong(guild, song).catch(errorHandler);
-        }
+    } else if (isSongSkippedAnnouncement(message) || isSuccessfullyDisconnectedAnnouncement(message)) {
+        await handleSongSkippedEvent(message);
     } else if (isAnnouncementsOnAnnouncement(message)) {
         await message.react("💆‍♀️").catch(errorHandler);
     } else if (isAnnouncementsOffAnnouncement(message)) {
@@ -38,6 +35,8 @@ const handleEvent = async (message: Message): Promise<void> => {
             .catch(errorHandler);
     } else if (isSongQueuedAnnouncement(message)) {
         await handleSongQueuedEvent(message);
+    } else {
+        Log.debug(`Unhandled event - ${message.content}`);
     }
 };
 
@@ -46,6 +45,14 @@ const handleNowPlayingEvent = async (message: Message): Promise<void> => {
     const guild = getGuild(message);
     await database.addSong(guild, song).catch(errorHandler);
     await handlePruning(message, guild, `**Now Playing** [${song.name}](${song.link})`);
+};
+
+const handleSongSkippedEvent = async (message: Message): Promise<void> => {
+    const guild = getGuild(message);
+    const song = await database.getLatestSong(guild);
+    if (song && !songStartedLongAgo(song)) {
+        await database.skipSong(guild, song).catch(errorHandler);
+    }
 };
 
 const handleSongQueuedEvent = async (message: Message): Promise<void> => {
@@ -167,6 +174,7 @@ const createContentAnnouncementChecker = (content: string): (message: Message) =
 const isSongSkippedAnnouncement = createContentAnnouncementChecker(SKIPPED_MESSAGE);
 const isAnnouncementsOnAnnouncement = createContentAnnouncementChecker(ANNOUNCEMENTS_ON);
 const isAnnouncementsOffAnnouncement = createContentAnnouncementChecker(ANNOUNCEMENTS_OFF);
+const isSuccessfullyDisconnectedAnnouncement = createContentAnnouncementChecker(DISCONNECTED_MESSAGE);
 const isNowPlayingAnnouncement = (message: Message): boolean =>
     !!message.embeds.find((embed: MessageEmbed) => embed.title === NOW_PLAYING_TITLE);
 const isSongQueuedAnnouncement = (message: Message): boolean =>

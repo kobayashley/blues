@@ -15,6 +15,7 @@ const timezone: CommandBinder = () => ({
         const {query, forGuild} = parseArgs(args);
         const guild = getGuild(message);
         const user = forGuild ? null : message.author.id;
+        const kind = forGuild ? "Server" : "User";
         let reply;
         if (query) {
             const searchResults = searchTimezone(query);
@@ -23,12 +24,12 @@ const timezone: CommandBinder = () => ({
             } else if (searchResults.length === 1) {
                 const [selectedTimezone] = searchResults;
                 await SettingsController.setTimezone(guild, user, selectedTimezone);
-                reply = `Timezone set to \`${selectedTimezone}\`.`;
+                reply = `${kind} timezone set to \`${selectedTimezone}\`.`;
             } else if (searchResults.length > MAX_SEARCH_RESULTS) {
                 reply = "Too many timezones matched that query. Please be more specific.";
             } else {
                 reply = "**Please select one of the following timezones:**\n" +
-                    searchResults.slice(-MAX_SEARCH_RESULTS).join("\n");
+                    searchResults.join("\n");
             }
         } else {
             reply = "Query required";

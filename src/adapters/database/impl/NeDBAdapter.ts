@@ -17,6 +17,12 @@ interface DBConfig<T> {
     guild: string;
 }
 
+interface TimezoneConfig {
+    _id?: string;
+    timezone: string;
+    id: string;
+}
+
 interface DBSong extends Song {
     _id?: string;
     guild: string;
@@ -163,6 +169,25 @@ const hasToken = async (token: string): Promise<boolean> => {
     return !!savedToken && savedToken.token === token;
 };
 
+const setTimezone = (id: string, timezone: string): Promise<void> => {
+    Log.debug("Setting timezone:", timezone);
+    const config = {id, timezone};
+    const collection = getCollection(Setting.TIMEZONE);
+    return promisifyNeDB<void>(collection.update.bind(collection))({id}, config, {upsert: true});
+};
+
+const getTimezone = async (id: string): Promise<string> => {
+    const collection = getCollection(Setting.TIMEZONE);
+    const query = {id};
+    const document = await promisifyNeDB<TimezoneConfig>(collection.findOne.bind(collection))(query);
+    Log.debug("Retrieved timezone", document?.timezone, `for id ${id}`);
+    return document?.timezone ?? null;
+};
+
+const deleteTimezone = (id: string): Promise<void> => {
+    return setTimezone(id, null);
+};
+
 export const NeDBAdapter: DatabaseAdapter = {
     getSetting,
     setSetting,
@@ -175,4 +200,7 @@ export const NeDBAdapter: DatabaseAdapter = {
     listPlaylists,
     addToken,
     hasToken,
+    setTimezone,
+    getTimezone,
+    deleteTimezone,
 };

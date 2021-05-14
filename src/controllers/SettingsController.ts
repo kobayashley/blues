@@ -1,6 +1,7 @@
 import {ConfigKey, getConfig} from "../util/Config";
 import {MuteConfig, MuteOption, PruneOption, Setting} from "../Types";
 import {getDatabaseAdapter} from "../adapters/database/DatabaseAdapter";
+import TimezoneController from "./TimezoneController";
 
 const DEFAULT_PREFIX = String(getConfig(ConfigKey.defaultPrefix));
 const ILLEGAL_PREFIXES = ["/", "@", "#"];
@@ -63,6 +64,21 @@ const setPrune = (guild: string, prune: PruneOption): Promise<void> => setSettin
 const getBot = (guild: string): Promise<string> => getSetting(guild, Setting.BOT, DEFAULT_BOT);
 const setBot = (guild: string, bot: string): Promise<void> => setSetting(guild, Setting.BOT, bot);
 
+const getTimezone = async (guild: string, user: string): Promise<string> => {
+    return await TimezoneController.getTimezone(user) ??
+        await TimezoneController.getTimezone(guild) ??
+        TimezoneController.defaultTimezone;
+};
+const setTimezone = (guild: string, user: string | null, timezone: string): Promise<void> => {
+    const id = user ?? guild;
+    return TimezoneController.setTimezone(id, timezone);
+};
+
+const clearTimezone = (guild: string, user: string): Promise<void> => {
+    const id = user ?? guild;
+    return TimezoneController.clearTimezone(id);
+};
+
 export default {
     setPrefix,
     getPrefix,
@@ -72,4 +88,7 @@ export default {
     setPrune,
     getBot,
     setBot,
+    getTimezone,
+    setTimezone,
+    clearTimezone,
 };

@@ -1,10 +1,10 @@
 import {Playlist, Range, SearchResult, Song, Source} from "../Types";
 import Log from "../util/Log";
-import moment from "moment";
 import {PlatformController} from "./platforms/PlatformController";
 import {Client, Message, MessageEmbed} from "discord.js";
 import {DatabaseAdapter, getDatabaseAdapter} from "../adapters/database/DatabaseAdapter";
 import {getSongRange} from "../util/Util";
+import {formatISOTime} from "../util/DateUtil";
 
 export default class PlaylistController {
     private static readonly database: DatabaseAdapter = getDatabaseAdapter();
@@ -66,8 +66,8 @@ export default class PlaylistController {
     private static createName(songs: Song[]): string {
         const first = songs[0];
         const last = songs[songs.length - 1];
-        const firstDate = moment(first.time).format("YYYY-MM-DD");
-        const lastDate = moment(last.time).format("YYYY-MM-DD");
+        const firstDate = formatISOTime(first.time);
+        const lastDate = formatISOTime(last.time);
         if (firstDate === lastDate) {
             return firstDate;
         } else {

@@ -1,5 +1,5 @@
 import {Client, Message} from "discord.js";
-import moment from "moment";
+import moment from "moment-timezone";
 import Log from "../util/Log";
 import {Range} from "../Types";
 
@@ -17,7 +17,7 @@ const determineRange = async (client: Client, message: Message, args: string[], 
     }
 };
 
-const determineStart = async (client:Client, message: Message, args: string[], defaultStart: number): Promise<number> => {
+const determineStart = async (client: Client, message: Message, args: string[], defaultStart: number): Promise<number> => {
     if (message.reference) {
         // if it's a reply --> use that time
         Log.debug("Determining start based on a reference");
@@ -84,4 +84,26 @@ const getMessageTimestampFromIDs = async (client: Client, guildId: string, chann
     }
 };
 
-export default {determineRange};
+const formatISOTime = (time: number): string =>
+    moment(time).format("YYYY-MM-DD");
+
+const getNow = (): number =>
+    Date.now();
+
+const getDayStartFromTime = (time: number): number =>
+    moment(time).startOf("day").valueOf();
+
+const searchTimezone = (query: string): string[] =>
+    moment.tz.names().filter(matches(query));
+
+const matches = (query: string): (name: string) => boolean => {
+    const lowerCaseQuery = query.toLowerCase();
+    return (name: string): boolean =>
+        name.toLowerCase().includes(lowerCaseQuery) ||
+        moment.tz.zone(name).abbrs.some((abbr) => abbr.toLowerCase() === lowerCaseQuery);
+};
+
+const getCurrentTimezone = (): string =>
+    moment.tz.guess();
+
+export {determineRange, formatISOTime, getNow, getDayStartFromTime, searchTimezone, getCurrentTimezone};

@@ -41,6 +41,7 @@
     "google-auth-library": "^7.0.4",
     "googleapis": "^73.0.0",
     "moment": "^2.29.1",
+    "moment-timezone": "^0.5.33",
     "nedb": "^1.8.0",
     "spotify-web-api-node": "^5.0.2"
   },

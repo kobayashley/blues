@@ -17,6 +17,11 @@ export interface DatabaseAdapter {
     getPlaylist(guild: string, source: Source, range: Range, requester: string): Promise<Playlist>;
     listPlaylists(guild: string): Promise<Playlist[]>;
 
+    // timezone
+    getTimezone(id: string): Promise<string>;
+    setTimezone(id: string, timezone: string): Promise<void>;
+    deleteTimezone(id: string): Promise<void>;
+
     // tokens
     addToken(token: string): Promise<void>;
     hasToken(token: string): Promise<boolean>;

@@ -23,7 +23,7 @@ const setTimezone = async (id: string, timezone: Timezone): Promise<void> => {
 };
 
 const clearTimezone = async (id: string): Promise<void> => {
-    await database.deleteTimezone(id);
+    await database.clearTimezone(id);
     timezoneCache.set(id, null);
 };
 

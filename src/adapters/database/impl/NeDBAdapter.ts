@@ -184,7 +184,7 @@ const getTimezone = async (id: string): Promise<string> => {
     return document?.timezone ?? null;
 };
 
-const deleteTimezone = (id: string): Promise<void> => {
+const clearTimezone = (id: string): Promise<void> => {
     return setTimezone(id, null);
 };
 
@@ -202,5 +202,5 @@ export const NeDBAdapter: DatabaseAdapter = {
     hasToken,
     setTimezone,
     getTimezone,
-    deleteTimezone,
+    clearTimezone,
 };

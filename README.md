@@ -109,8 +109,27 @@ Example:
 $rythm @Rythm#1234
 ```
 
-### `$timezone <zone>`
-TBD
+### `$timezone <server>? (<clear> | <timezone>)`
+```
+<server>   ::= server
+<clear>    ::= clear
+<timezone> ::= <string>
+```
+Sets the timezone to be used in playlist creation.
+This can be set at the user level or at the entire server level.
+
+If no user timezone is found, Blues will use the server timezone,
+and if no server timezone if found, Blues will use the default timezone.
+
+If the clear flag is provided, the timezone is removed instead.
+
+If there are many timezones that match the one specified,
+Blues will reply with a list of matching timezones.
+
+Example:
+```
+$timezone vancouver
+```
 
 ## Development
 ### Requirements

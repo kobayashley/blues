@@ -5,10 +5,12 @@ import {Range} from "../Types";
 
 const DISCORD_PREFIX = "https://discord.com/channels/";
 
-const determineRange = async (client: Client, message: Message, args: string[], defaultRange: Range): Promise<Range> => {
+const determineRange = async (client: Client, message: Message, timezone: string, args: string[], defaultRange: Range):
+    Promise<Range> => {
+
     try {
-        const futureStart = determineStart(client, message, args, defaultRange.start);
-        const futureEnd = determineEnd(client, message, args, defaultRange.end);
+        const futureStart = determineStart(client, message, timezone, args, defaultRange.start);
+        const futureEnd = determineEnd(client, message, timezone, args, defaultRange.end);
         const [start, end] = await Promise.all([futureStart, futureEnd]);
         return {start, end};
     } catch (err) {
@@ -17,7 +19,9 @@ const determineRange = async (client: Client, message: Message, args: string[], 
     }
 };
 
-const determineStart = async (client: Client, message: Message, args: string[], defaultStart: number): Promise<number> => {
+const determineStart = async (client: Client, message: Message, timezone: string, args: string[], defaultStart: number):
+    Promise<number> => {
+
     if (message.reference) {
         // if it's a reply --> use that time
         Log.debug("Determining start based on a reference");
@@ -30,11 +34,13 @@ const determineStart = async (client: Client, message: Message, args: string[], 
     } else {
         // join the remainder of arguments and try moment on them
         Log.debug("Determining start based on date string");
-        return getTimeFromDateString(args.join(" "), "start") ?? defaultStart;
+        return getTimeFromDateString(args.join(" "), timezone, "start") ?? defaultStart;
     }
 };
 
-const determineEnd = async (client: Client, message: Message, args: string[], defaultEnd: number): Promise<number> => {
+const determineEnd = async (client: Client, message: Message, timezone: string, args: string[], defaultEnd: number):
+    Promise<number> => {
+
     if (message.reference && args[0]?.startsWith(DISCORD_PREFIX)) {
         // if it's a reply && contains discord link --> use discord link
         Log.debug("Determining end based on first link");
@@ -46,13 +52,13 @@ const determineEnd = async (client: Client, message: Message, args: string[], de
     } else {
         // join the remainder of arguments and try moment on them
         Log.debug("Determining end based on date string");
-        return getTimeFromDateString(args.join(" "), "end") ?? defaultEnd;
+        return getTimeFromDateString(args.join(" "), timezone, "end") ?? defaultEnd;
     }
 };
 
-const getTimeFromDateString = (dateString: string, when: "start" | "end"): number => {
+const getTimeFromDateString = (dateString: string, timezone: string, when: "start" | "end"): number => {
     try {
-        const date = moment(dateString, "YYYY MM DD");
+        const date = moment.tz(dateString, "YYYY MM DD", timezone);
         if (date.isValid()) {
             // success --> moment end of day
             return date[`${when}Of`]("day").valueOf();
@@ -84,19 +90,19 @@ const getMessageTimestampFromIDs = async (client: Client, guildId: string, chann
     }
 };
 
-const formatISOTime = (time: number): string =>
-    moment(time).format("YYYY-MM-DD");
+const formatISOTime = (time: number, timezone: string): string =>
+    moment(time).tz(timezone).format("YYYY-MM-DD");
 
 const getNow = (): number =>
     Date.now();
 
-const getDayStartFromTime = (time: number): number =>
-    moment(time).startOf("day").valueOf();
+const getDayStartFromTime = (time: number, timezone: string): number =>
+    moment(time).tz(timezone).startOf("day").valueOf();
 
 const searchTimezone = (query: string): string[] =>
-    moment.tz.names().filter(matches(query));
+    moment.tz.names().filter(matchesQuery(query));
 
-const matches = (query: string): (name: string) => boolean => {
+const matchesQuery = (query: string): (name: string) => boolean => {
     const lowerCaseQuery = query.toLowerCase();
     return (name: string): boolean =>
         name.toLowerCase().includes(lowerCaseQuery) ||

@@ -11,7 +11,7 @@ export default class PlaylistController {
     constructor(private platform: PlatformController) {}
 
     public async sendPlaylist(client: Client, playlistOptions: PlaylistOptions): Promise<void> {
-        const {guild, range, channel, source, requester, force} = playlistOptions;
+        const {guild, range, channel, source, requester, force, timezone} = playlistOptions;
         try {
             const songs = await PlaylistController.database.getSongsBetween(guild, range.start, range.end);
             const existingPlaylist = await PlaylistController.database.getPlaylist(guild, source, getSongRange(songs), requester);
@@ -19,7 +19,7 @@ export default class PlaylistController {
                 const {name, link} = existingPlaylist;
                 await PlaylistController.sendPlaylistEmbed(name, link, client, guild, channel, "Playlist already existed");
             } else {
-                const playlist = await this.createNewPlaylist(songs, source, requester);
+                const playlist = await this.createNewPlaylist(songs, source, requester, timezone);
                 await PlaylistController.database.addPlaylist(guild, playlist);
                 const {name, link} = playlist;
                 await PlaylistController.sendPlaylistEmbed(name, link, client, guild, channel, "Playlist created successfully");
@@ -30,8 +30,8 @@ export default class PlaylistController {
         }
     }
 
-    public async createNewPlaylist(songs: Song[], source: Source, requester: string): Promise<Playlist> {
-        const name = PlaylistController.createName(songs);
+    public async createNewPlaylist(songs: Song[], source: Source, requester: string, timezone: string): Promise<Playlist> {
+        const name = PlaylistController.createName(songs, timezone);
         const playlistLink = await this.platform.createPlaylist(name);
         for (const song of songs) {
             if (song.source === source) {
@@ -63,11 +63,11 @@ export default class PlaylistController {
         }
     }
 
-    private static createName(songs: Song[]): string {
+    private static createName(songs: Song[], timezone: string): string {
         const first = songs[0];
         const last = songs[songs.length - 1];
-        const firstDate = formatISOTime(first.time);
-        const lastDate = formatISOTime(last.time);
+        const firstDate = formatISOTime(first.time, timezone);
+        const lastDate = formatISOTime(last.time, timezone);
         if (firstDate === lastDate) {
             return firstDate;
         } else {
@@ -89,4 +89,5 @@ export interface PlaylistOptions {
     source: Source;
     requester: string;
     force: boolean;
+    timezone: string;
 }

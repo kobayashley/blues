@@ -7,6 +7,7 @@ import {getDatabaseAdapter} from "../../adapters/database/DatabaseAdapter";
 import {Song, Source} from "../../Types";
 import {getAuthURL} from "../../services/Authorization";
 import {Range} from "../../Types";
+import SettingsController from "../../controllers/SettingsController";
 
 const database = getDatabaseAdapter();
 
@@ -18,17 +19,18 @@ const playlist: CommandBinder = (client: Client) => ({
     usage: `playlist <source = ${Source.YOUTUBE} | ${Source.SPOTIFY}>? (<year> <month> <day> | (<startMessage> <endMessage>?))? <force = force>?`,
     procedure: async (message: Message, starterArgs: string[]) => {
         const now = getNow();
-        const dayStart = getDayStartFromTime(now);
+        const timezone = await SettingsController.getTimezone(getGuild(message), message.author.id);
+        const dayStart = getDayStartFromTime(now, timezone);
         try {
             const {source, args, force} = parseArgs(starterArgs);
             if (!isSupportedSource(source)) {
                 return message.channel.send(`${source} is not supported`);
             }
             const defaultRange = {start: dayStart, end: now};
-            const requestRange = await determineRange(client, message, args, defaultRange);
+            const requestRange = await determineRange(client, message, timezone, args, defaultRange);
             const songs = await database.getSongsBetween(getGuild(message), requestRange.start, requestRange.end);
             if (songs.length > 0) {
-                await sendAuthLink(source, message, songs, requestRange, force);
+                await sendAuthLink(source, message, songs, requestRange, timezone, force);
             } else {
                 throw new Error("There are no songs to add to a playlist");
             }
@@ -59,11 +61,12 @@ const parseArgs = (args: string[]): {source: Source, args: string[], force: bool
 const isSupportedSource = (source: Source): boolean =>
     source === Source.YOUTUBE || source === Source.SPOTIFY;
 
-const sendAuthLink = async (source: Source, message: Message, songs: Song[], range: Range, force: boolean): Promise<void> => {
+const sendAuthLink = async (source: Source, message: Message, songs: Song[], range: Range, timezone: string, force: boolean): Promise<void> => {
     const options: PlaylistOptions = {
         channel: message.channel.id,
         guild: message.guild.id,
         requester: message.author.tag,
+        timezone,
         force,
         range,
         source,

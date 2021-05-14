@@ -38,6 +38,7 @@ export enum Setting {
     MUTE = "mute",
     PRUNE = "prune",
     BOT = "bot",
+    TIMEZONE = "timezone",
 }
 
 export interface MuteConfig {
@@ -55,6 +56,11 @@ export enum PruneOption {
     ON = "on",
     OFF = "off",
     REPLACE = "replace",
+}
+
+export enum TimezoneOption {
+    SERVER = "server",
+    CLEAR = "clear",
 }
 
 export type Range = {start: number, end: number};

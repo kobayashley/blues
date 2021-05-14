@@ -4,20 +4,25 @@ import {searchTimezone} from "../../util/DateUtil";
 import {getGuild} from "../../util/Util";
 import SettingsController from "../../controllers/SettingsController";
 import {TimezoneOption} from "../../Types";
+import Log from "../../util/Log";
 
 const MAX_SEARCH_RESULTS = 300;
 
 const timezone: CommandBinder = () => ({
     name: "timezone",
-    description: "Searches for the moment timezone string",
-    usage: "timezone <server>? <timezone>",
+    description: "Sets the timezone to be used in playlist creation",
+    usage: "timezone <server = server>? (<clear = clear> | <timezone>)",
     procedure: async (message: Message, args: string[]) => {
-        const {query, forGuild} = parseArgs(args);
+        const {query, clear, forGuild} = parseArgs(args);
         const guild = getGuild(message);
         const user = forGuild ? null : message.author.id;
         const kind = forGuild ? "Server" : "User";
         let reply;
-        if (query) {
+        if (query && clear) {
+            Log.info("Too many arguments to adjust timezones for", kind);
+            reply = "Only one of query or clear arguments should be used.";
+        } else if (query) {
+            Log.info("Searching for timezones to update", kind);
             const searchResults = searchTimezone(query);
             if (searchResults.length === 0) {
                 reply = `There were no timezones matching \`${query}\`. Please try another.`;
@@ -31,19 +36,31 @@ const timezone: CommandBinder = () => ({
                 reply = "**Please select one of the following timezones:**\n" +
                     searchResults.join("\n");
             }
+        } else if (clear) {
+            Log.info("Removing any saved timezone for", kind);
+            await SettingsController.clearTimezone(guild, user);
+            reply = `${kind} timezone has been reset.`;
         } else {
-            reply = "Query required";
+            reply = "Query or clear argument required";
         }
         return message.channel.send(reply);
     },
 });
 
-const parseArgs = (args) => {
-    if (args[0]?.toLowerCase() === TimezoneOption.SERVER) {
-        return {query: args[1], forGuild: true};
-    } else {
-        return {query: args[0], forGuild: false};
+const parseArgs = (args: string[]) => {
+    let currentArgs = args;
+    let forGuild = false;
+    let clear = false;
+    if (currentArgs[0] === TimezoneOption.SERVER) {
+        forGuild = true;
+        currentArgs = currentArgs.slice(1);
     }
+    if (currentArgs[0] === TimezoneOption.CLEAR) {
+        clear = true;
+        currentArgs = currentArgs.slice(1);
+    }
+    const query = currentArgs.join(" ");
+    return {forGuild, clear, query};
 };
 
 export default timezone;

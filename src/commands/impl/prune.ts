@@ -13,7 +13,7 @@ const prune: CommandBinder = (client: Client) => ({
         const [arg] = args;
         if (!isPruneOption(arg)) {
             // Tell the user the proper usage
-            return message.channel.send(`Prune must be set to '${PruneOption.ON}', '${PruneOption.OFF}', or '${PruneOption.REPLACE}'`);
+            return message.channel.send(`Prune must be set to \`${PruneOption.ON}\`, \`${PruneOption.OFF}\`, or \`${PruneOption.REPLACE}\``);
         } else if (arg === PruneOption.ON || arg === PruneOption.REPLACE) {
             Log.info("Attempting to enable message pruning");
             const clientMember = message.guild?.member(client.user);

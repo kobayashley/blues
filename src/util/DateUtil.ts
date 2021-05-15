@@ -99,8 +99,11 @@ const getNow = (): number =>
 const getDayStartFromTime = (time: number, timezone: string): number =>
     moment(time).tz(timezone).startOf("day").valueOf();
 
-const searchTimezone = (query: string): string[] =>
-    moment.tz.names().filter(matchesQuery(query));
+const searchTimezone = (query: string): string[] => {
+    const names = moment.tz.names();
+    const exactResult = names.find((name) => name === query);
+    return exactResult ? [exactResult] : names.filter(matchesQuery(query));
+};
 
 const matchesQuery = (query: string): (name: string) => boolean => {
     const lowerCaseQuery = query.toLowerCase();

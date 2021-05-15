@@ -50,7 +50,7 @@ This playlist is made on YouTube by default, but Spotify can
 be used by specifying `spotify` in the command arguments.
 
 By default, the songs added to the playlist are the songs
-played by Rhythm on the same day that the playlist was requested.
+played by Rythm on the same day that the playlist was requested.
 
 To specify a date range, you may add up to two links to discord messages.
 The first and second messages' timestamps will be used for the
@@ -109,8 +109,28 @@ Example:
 $rythm @Rythm#1234
 ```
 
-### `$timezone <zone>`
-TBD
+### `$timezone <server>? (<clear> | <timezone>)`
+```
+<server>   ::= server
+<clear>    ::= clear
+<timezone> ::= <string>
+```
+Sets the timezone to be used in playlist creation.
+This can be set at the user level or at the entire server level.
+
+If no user timezone is found, Blues will use the server timezone,
+and if no server timezone if found, Blues will use the default timezone.
+
+If the clear flag is provided, the timezone is removed instead.
+
+If there are many timezones that are similar to the one specified,
+Blues will reply with a list of matching timezones.
+A user must then repeat the command with one of the provided suggestions.
+
+Example:
+```
+$timezone vancouver
+```
 
 ## Development
 ### Requirements

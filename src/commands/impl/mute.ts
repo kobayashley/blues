@@ -25,7 +25,7 @@ const mute: CommandBinder = () => ({
             return message.channel.send(`Mute is now \`${arg}\`${channelMessage}`);
         } else {
             // Tell the user the proper usage
-            return message.channel.send(`Mute must be set to '${MuteOption.ON}', '${MuteOption.OFF}', or '${MuteOption.WARN}'`);
+            return message.channel.send(`Mute must be set to \`${MuteOption.ON}\`, \`${MuteOption.OFF}\`, or \`${MuteOption.WARN}\``);
         }
     },
 });

@@ -34,7 +34,7 @@ Example:
 $mute warn #bot-spam
 ```
 
-### `$playlist <source>? (<year> <month> <day> | (<startMessage> <endMessage>?))? <force>?`
+### `$playlist <source>? ((<year> <month> <day>) | (<startMessage>? <endMessage>?))? <force>?`
 ```
 <source>       ::= youtube | spotify
 <year>         ::= <number>

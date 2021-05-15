@@ -16,7 +16,7 @@ const FORCE_FLAG = "force";
 const playlist: CommandBinder = (client: Client) => ({
     name: "playlist",
     description: "Creates a playlist from music played by Rythm",
-    usage: `playlist <source = ${Source.YOUTUBE} | ${Source.SPOTIFY}>? (<year> <month> <day> | (<startMessage> <endMessage>?))? <force = force>?`,
+    usage: `playlist <source = ${Source.YOUTUBE} | ${Source.SPOTIFY}>? ((<year> <month> <day>) | (<startMessage>? <endMessage>?))? <force = force>?`,
     procedure: async (message: Message, starterArgs: string[]) => {
         const now = getNow();
         const timezone = await SettingsController.getTimezone(getGuild(message), message.author.id);

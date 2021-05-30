@@ -83,11 +83,13 @@ const getMessageTimestampFromIDs = async (client: Client, guildId: string, chann
         if (channel.isText()) {
             const message = await channel.messages.fetch(messageId);
             return message.createdTimestamp;
+        } else {
+            Log.error(`Provided channel "${channelId}" is not a text channel`);
         }
     } catch (err) {
         Log.error("Could not get timestamp from discord message IDs", err);
-        throw new Error("Could not get end time from linked Messages");
     }
+    throw new Error("Could not get end time from linked Messages");
 };
 
 const formatISOTime = (time: number, timezone: string): string =>

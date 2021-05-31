@@ -3,6 +3,7 @@ import {Client, GuildMember, VoiceState} from "discord.js";
 import SettingsController from "../../controllers/SettingsController";
 import {MemeOption} from "../../Types";
 import {getDatabaseAdapter} from "../../adapters/database/DatabaseAdapter";
+import Log from "../../util/Log";
 
 const database = getDatabaseAdapter();
 
@@ -26,21 +27,33 @@ const shouldMakeFunOf = (botID: string, member: GuildMember): boolean =>
 
 const makeFunOf = async (client: Client, voiceState: VoiceState, alertsChannelID: string): Promise<void> => {
     const deafened =  voiceState.member;
+    Log.info(`deafenedListener::makeFunOf(${deafened.id}) - Begin`);
     const alertsChannel = await client.channels.fetch(alertsChannelID);
     if (alertsChannel.isText()) {
         const currentSong = await database.getLatestSong(voiceState.guild.id);
         if ((currentSong.time + currentSong.length) > Date.now()) {
-            const requester = voiceState.guild.member(currentSong.requester);
+            const members = await voiceState.guild.members.fetch();
+            const requester = members.find((member) => member.user.tag === currentSong.requester);
+            let message;
             if (requester) {
-                let message;
                 if (requester.id === deafened.id) {
-                    message = `lmao ${deafened.user.toString()} you don't wanna hear this song but you this we do???`;
+                    Log.debug("The requester is the same person who deafened");
+                    message = `lmao ${deafened.user.toString()} you don't wanna hear this song but you think we do???`;
                 } else {
+                    Log.debug("The requester is not the person who deafened");
                     message = `lmao ${deafened.user.toString()} doesn't wanna hear your song ${requester.toString()}!`;
                 }
-                await alertsChannel.send(message);
+
+            } else {
+                Log.debug("The requester could not be found");
+                message = `lmao ${deafened.user.toString()} what's wrong with the music???`;
             }
+            await alertsChannel.send(message);
+        } else {
+            Log.info("No song is currently playing");
         }
+    } else {
+        Log.error("The alert channel is not a text channel");
     }
 };
 

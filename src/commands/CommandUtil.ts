@@ -23,7 +23,7 @@ const getCommand = (command: string): Command => {
 const getAllCommands = (): Command[] => {
     // the meme command is meant to be hidden. see https://github.com/kobayashley/blues/issues/89
     return Array.from(commands.values())
-        .filter((command) => command.name === "meme");
+        .filter((command) => command.name !== "meme");
 };
 
 const isCommandFormatted = async (message: Message): Promise<boolean> => {

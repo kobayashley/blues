@@ -1,6 +1,8 @@
 # Blues
 A companion to the Discord [Rythm](https://rythm.fm/) Bot
 
+[Click here to add Blues to your server!](https://discord.com/api/oauth2/authorize?client_id=834224247874125825&permissions=4222016&scope=bot)
+
 ## About
 Blues was created by [Ashley Kobayashi](https://github.com/kobayashley) and [Braxton Hall](https://github.com/braxtonhall).
 

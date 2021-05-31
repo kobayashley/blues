@@ -10,23 +10,24 @@ const database = getDatabaseAdapter();
 const deafenedListener: Listener<"voiceStateUpdate"> = {
     name: "deafenedListener",
     event: "voiceStateUpdate",
-    procedure: (client: Client) => async (_: VoiceState, newVoiceState: VoiceState) => {
+    procedure: (client: Client) => async (oldVoiceState: VoiceState, newVoiceState: VoiceState) => {
         if (newVoiceState.channel) {
             const guild = newVoiceState.guild.id;
             const {option, channel} = await SettingsController.getMeme(guild);
             const bot = await SettingsController.getBot(guild);
-            if (shouldMakeFunOf(bot, newVoiceState.member) && option === MemeOption.ON) {
+            if (shouldMakeFunOf(bot, oldVoiceState, newVoiceState) && option === MemeOption.ON) {
                 await makeFunOf(client, newVoiceState, channel);
             }
         }
     },
 };
 
-const shouldMakeFunOf = (botID: string, member: GuildMember): boolean =>
-    member.id !== botID && member.voice.selfDeaf === true && member.voice.channel.members.has(botID);
+const shouldMakeFunOf = (botID: string, oldVoiceState: VoiceState, newVoiceState: VoiceState): boolean =>
+    newVoiceState.member.id !== botID && oldVoiceState.selfDeaf === false &&
+    newVoiceState.selfDeaf === true && newVoiceState.channel.members.has(botID);
 
 const makeFunOf = async (client: Client, voiceState: VoiceState, alertsChannelID: string): Promise<void> => {
-    const deafened =  voiceState.member;
+    const deafened = voiceState.member;
     Log.info(`deafenedListener::makeFunOf(${deafened.id}) - Begin`);
     const alertsChannel = await client.channels.fetch(alertsChannelID);
     if (alertsChannel.isText()) {

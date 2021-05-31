@@ -6,9 +6,7 @@ import {OAuth2Client} from "google-auth-library";
 import {PlatformController} from "../PlatformController";
 
 class YouTubeController implements PlatformController {
-    private static readonly VIDEO_LINK_REPLACEMENT = "https://www.youtube.com/watch?v=";
-    private static readonly PLAYLIST_LINK_REPLACEMENT = "https://youtube.com/playlist?list=";
-
+    private static readonly YOUTUBE_URL = "https://www.youtube.com";
     private static readonly youtube = google.youtube("v3");
 
     constructor(private auth: OAuth2Client) {}
@@ -32,7 +30,7 @@ class YouTubeController implements PlatformController {
         Log.info(`YouTubeAdapter::search found ${videos.length} results for "${query}"`);
         return videos.map((video: youtube_v3.Schema$Video): SearchResult => {
             const {snippet, contentDetails} = video;
-            const link = `https://www.youtube.com/watch?v=${video.id}`;
+            const link = YouTubeController.createYouTubeURL("watch", "v", video.id);
             const name = snippet.title;
             const length = moment.duration(contentDetails.duration).asMilliseconds();
             return {link, name, length};
@@ -56,7 +54,7 @@ class YouTubeController implements PlatformController {
                 }
             }
         });
-        return `${YouTubeController.PLAYLIST_LINK_REPLACEMENT}${response.data.id}`;
+        return YouTubeController.createYouTubeURL("playlist", "list", response.data.id);
     }
 
     public async addToPlaylist(playlistLink: string, songLink: string): Promise<void> {
@@ -67,14 +65,26 @@ class YouTubeController implements PlatformController {
             ],
             requestBody: {
                 snippet: {
-                    playlistId: playlistLink.replace(YouTubeController.PLAYLIST_LINK_REPLACEMENT, ""),
+                    playlistId: YouTubeController.getArgumentFromURL(playlistLink, "list"),
                     resourceId: {
                         kind: "youtube#video",
-                        videoId: songLink.replace(YouTubeController.VIDEO_LINK_REPLACEMENT, ""),
+                        videoId: YouTubeController.getArgumentFromURL(songLink, "v"),
                     }
                 }
             }
         });
+    }
+
+    private static getArgumentFromURL(url: string, parameterName: "list" | "v"): string {
+        const {searchParams} = new URL(url);
+        return searchParams.get(parameterName);
+    }
+
+    private static createYouTubeURL(path: "watch" | "playlist", parameterName: "list" | "v", argument: string): string {
+        const url = new URL(YouTubeController.YOUTUBE_URL);
+        url.pathname = path;
+        url.searchParams.append(parameterName, argument);
+        return url.toString();
     }
 }
 

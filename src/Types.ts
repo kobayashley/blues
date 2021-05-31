@@ -39,6 +39,7 @@ export enum Setting {
     PRUNE = "prune",
     BOT = "bot",
     TIMEZONE = "timezone",
+    MEME = "meme",
 }
 
 export interface MuteConfig {
@@ -61,6 +62,16 @@ export enum PruneOption {
 export enum TimezoneOption {
     SERVER = "server",
     CLEAR = "clear",
+}
+
+export enum MemeOption {
+    ON = "on",
+    OFF = "off",
+}
+
+export interface MemeConfig {
+    option: MemeOption;
+    channel: string;
 }
 
 export type Range = {start: number, end: number};

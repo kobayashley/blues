@@ -3,6 +3,7 @@ import {Channel, Message} from "discord.js";
 import SettingsController from "../../controllers/SettingsController";
 import {MuteConfig, MuteOption} from "../../Types";
 import {getGuild, isMuteOption} from "../../util/Util";
+import {getMentionedChannel} from "../CommandUtil";
 
 const mute: CommandBinder = () => ({
     name: "mute",
@@ -14,11 +15,7 @@ const mute: CommandBinder = () => ({
             let channel: Channel;
             if (arg !== MuteOption.OFF) {
                 // We need to get the correct channel to put warning into
-                if (message.mentions.channels.size === 1) {
-                    channel = message.mentions.channels.first();
-                } else {
-                    channel = message.channel;
-                }
+                channel = getMentionedChannel(message);
             }
             await saveConfiguration(getGuild(message), arg, channel?.id ?? "");
             const channelMessage = channel ? `; Warnings will be sent to ${channel.toString()}` : "";

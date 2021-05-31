@@ -1,16 +1,18 @@
 import {ConfigKey, getConfig} from "../util/Config";
-import {MuteConfig, MuteOption, PruneOption, Setting} from "../Types";
+import {MemeConfig, MemeOption, MuteConfig, MuteOption, PruneOption, Setting} from "../Types";
 import {getDatabaseAdapter} from "../adapters/database/DatabaseAdapter";
 import TimezoneController from "./TimezoneController";
 
 const DEFAULT_PREFIX = String(getConfig(ConfigKey.defaultPrefix));
 const ILLEGAL_PREFIXES = ["/", "@", "#"];
 
-const DEFAULT_MUTE = {channel:"", option: MuteOption.OFF};
+const DEFAULT_MUTE = {channel: "", option: MuteOption.OFF};
 
 const DEFAULT_PRUNE = PruneOption.OFF;
 
 const DEFAULT_BOT = String(getConfig(ConfigKey.defaultRythmId));
+
+const DEFAULT_MEME = {channel: "", option: MemeOption.OFF};
 
 type Guild = string;
 type Cache = Map<Setting, any>
@@ -64,6 +66,9 @@ const setPrune = (guild: string, prune: PruneOption): Promise<void> => setSettin
 const getBot = (guild: string): Promise<string> => getSetting(guild, Setting.BOT, DEFAULT_BOT);
 const setBot = (guild: string, bot: string): Promise<void> => setSetting(guild, Setting.BOT, bot);
 
+const getMeme = (guild: string): Promise<MemeConfig> => getSetting(guild, Setting.MEME, DEFAULT_MEME);
+const setMeme = (guild: string, newOption: MemeConfig): Promise<void> => setSetting(guild, Setting.MEME, newOption);
+
 const getTimezone = async (guild: string, user: string): Promise<string> => {
     return await TimezoneController.getTimezone(user) ??
         await TimezoneController.getTimezone(guild) ??
@@ -88,6 +93,8 @@ export default {
     setPrune,
     getBot,
     setBot,
+    getMeme,
+    setMeme,
     getTimezone,
     setTimezone,
     clearTimezone,

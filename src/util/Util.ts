@@ -1,5 +1,5 @@
 import fs from "fs";
-import {MuteConfig, MuteOption, PruneOption, Range, Song, Source} from "../Types";
+import {MemeOption, MuteConfig, MuteOption, PruneOption, Range, Song, Source} from "../Types";
 import {Message} from "discord.js";
 
 const batchImport = (directory: string): Promise<any[]> => {
@@ -23,9 +23,12 @@ const isMuteConfig = (maybeMuteConfig: any): maybeMuteConfig is MuteConfig =>
     maybeMuteConfig && typeof maybeMuteConfig === "object" &&
     isMuteOption(maybeMuteConfig.option) && typeof maybeMuteConfig.channel === "string";
 
+const isMemeOption = (maybeMemeOption: any): maybeMemeOption is MemeOption =>
+    Object.values(MemeOption).includes(maybeMemeOption);
+
 const isPruneOption = (maybePruneOption: any): maybePruneOption is PruneOption =>
     Object.values(PruneOption).includes(maybePruneOption);
 
 const getGuild = (message: Message): string => message.guild?.id ?? "";
 
-export {batchImport, getSongRange, isSource, isMuteOption, isPruneOption, isMuteConfig, getGuild};
+export {batchImport, getSongRange, isSource, isMuteOption, isMemeOption, isPruneOption, isMuteConfig, getGuild};

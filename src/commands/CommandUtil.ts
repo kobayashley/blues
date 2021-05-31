@@ -1,5 +1,5 @@
 import {Command, CommandBinder} from "./Command";
-import {Client, Message} from "discord.js";
+import {Channel, Client, Message} from "discord.js";
 import PrefixController from "../controllers/SettingsController";
 import {batchImport, getGuild} from "../util/Util";
 
@@ -21,7 +21,9 @@ const getCommand = (command: string): Command => {
 };
 
 const getAllCommands = (): Command[] => {
-    return Array.from(commands.values());
+    // the meme command is meant to be hidden. see https://github.com/kobayashley/blues/issues/89
+    return Array.from(commands.values())
+        .filter((command) => command.name !== "meme");
 };
 
 const isCommandFormatted = async (message: Message): Promise<boolean> => {
@@ -40,10 +42,19 @@ const parseCommandAndArgs = async (message: Message): Promise<{command: string, 
     return {command, args};
 };
 
+const getMentionedChannel = (message: Message): Channel => {
+    if (message.mentions.channels.size === 1) {
+        return message.mentions.channels.first();
+    } else {
+        return message.channel;
+    }
+};
+
 export {
     registerCommands,
     getCommand,
     getAllCommands,
     isCommandFormatted,
-    parseCommandAndArgs
+    parseCommandAndArgs,
+    getMentionedChannel,
 };

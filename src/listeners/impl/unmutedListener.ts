@@ -4,8 +4,8 @@ import Log from "../../util/Log";
 import SettingsController from "../../controllers/SettingsController";
 import {MuteOption} from "../../Types";
 
-const voiceStateUpdate: Listener<"voiceStateUpdate"> = {
-    name: "voiceStateUpdate",
+const unmutedListener: Listener<"voiceStateUpdate"> = {
+    name: "unmutedListener",
     event: "voiceStateUpdate",
     procedure: (client: Client) => async (_: VoiceState, newVoiceState: VoiceState) => {
         if (newVoiceState.channel) {
@@ -56,4 +56,4 @@ const strategies: {[strategy: string]: MuteStrategy} = {
     [MuteOption.OFF]: performNothing,
 };
 
-module.exports = voiceStateUpdate;
+module.exports = unmutedListener;

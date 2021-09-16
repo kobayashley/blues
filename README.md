@@ -1,4 +1,9 @@
 # Blues
+
+Deprecated along with the [Rythm](https://rythm.fm/) Bot :(
+
+#
+
 A companion to the Discord [Rythm](https://rythm.fm/) Bot
 
 [Click here to add Blues to your server!](https://discord.com/api/oauth2/authorize?client_id=834224247874125825&permissions=4222016&scope=bot)
